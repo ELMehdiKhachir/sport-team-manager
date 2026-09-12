@@ -4,4 +4,3 @@ abstract final class AppConfig {
     defaultValue: 'http://localhost:3000',
   );
 }
-

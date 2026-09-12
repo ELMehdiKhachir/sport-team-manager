@@ -9,4 +9,3 @@ void main() {
     expect(find.text('Thème du club'), findsOneWidget);
   });
 }
-

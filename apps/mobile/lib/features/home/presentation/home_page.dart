@@ -18,22 +18,23 @@ class HomePage extends StatelessWidget {
               Text(
                 'Le terrain est prêt.',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                      fontWeight: FontWeight.w800,
+                    ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Le socle mobile est initialisé. Les fonctionnalités seront ajoutées après validation.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
+                      color: colors.onSurfaceVariant,
+                    ),
               ),
               const SizedBox(height: 24),
               Card(
                 child: ListTile(
                   leading: Icon(Icons.sports_soccer, color: colors.primary),
                   title: const Text('Thème du club'),
-                  subtitle: const Text('Clair, sombre et prêt pour des couleurs dynamiques'),
+                  subtitle: const Text(
+                      'Clair, sombre et prêt pour des couleurs dynamiques'),
                 ),
               ),
             ],
@@ -43,4 +44,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-

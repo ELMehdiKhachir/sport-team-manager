@@ -36,13 +36,14 @@ class FunctionalColors extends ThemeExtension<FunctionalColors> {
     Color? info,
     Color? yellowCard,
     Color? redCard,
-  }) => FunctionalColors(
-    success: success ?? this.success,
-    warning: warning ?? this.warning,
-    info: info ?? this.info,
-    yellowCard: yellowCard ?? this.yellowCard,
-    redCard: redCard ?? this.redCard,
-  );
+  }) =>
+      FunctionalColors(
+        success: success ?? this.success,
+        warning: warning ?? this.warning,
+        info: info ?? this.info,
+        yellowCard: yellowCard ?? this.yellowCard,
+        redCard: redCard ?? this.redCard,
+      );
 
   @override
   FunctionalColors lerp(FunctionalColors? other, double t) {
@@ -59,14 +60,14 @@ class FunctionalColors extends ThemeExtension<FunctionalColors> {
 
 abstract final class AppTheme {
   static ThemeData light(ClubPalette club) => _build(
-    club,
-    Brightness.light,
-  );
+        club,
+        Brightness.light,
+      );
 
   static ThemeData dark(ClubPalette club) => _build(
-    club,
-    Brightness.dark,
-  );
+        club,
+        Brightness.dark,
+      );
 
   static ThemeData _build(ClubPalette club, Brightness brightness) {
     var scheme = ColorScheme.fromSeed(
@@ -124,4 +125,3 @@ extension SemanticColors on BuildContext {
   FunctionalColors get functionalColors =>
       Theme.of(this).extension<FunctionalColors>()!;
 }
-

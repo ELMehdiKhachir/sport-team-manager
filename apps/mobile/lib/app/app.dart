@@ -19,4 +19,3 @@ class SportTeamManagerApp extends StatelessWidget {
     );
   }
 }
-
