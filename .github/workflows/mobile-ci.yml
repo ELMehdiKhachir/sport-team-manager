@@ -31,3 +31,28 @@ jobs:
       - working-directory: apps/mobile
         run: flutter test
 
+  web-preview-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate web runner without changing app sources
+        working-directory: apps/mobile
+        run: flutter create --platforms=web --project-name sport_team_manager --no-pub .
+      - working-directory: apps/mobile
+        run: flutter pub get
+      - working-directory: apps/mobile
+        run: flutter analyze
+      - working-directory: apps/mobile
+        run: flutter test
+      - working-directory: apps/mobile
+        run: flutter build web --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: flutter-web-preview
+          path: apps/mobile/build/web
+          if-no-files-found: error
+          retention-days: 7
