@@ -25,7 +25,7 @@ jobs:
       - working-directory: apps/mobile
         run: flutter pub get
       - working-directory: apps/mobile
-        run: dart format --output=none --set-exit-if-changed lib test
+        run: dart format --output=show --set-exit-if-changed lib test
       - working-directory: apps/mobile
         run: flutter analyze
       - working-directory: apps/mobile
@@ -41,7 +41,10 @@ jobs:
           cache: true
       - name: Generate web runner without changing app sources
         working-directory: apps/mobile
-        run: flutter create --platforms=web --project-name sport_team_manager --no-pub .
+        run: |
+          runner_dir=$(mktemp -d)
+          flutter create --platforms=web --project-name sport_team_manager --no-pub "$runner_dir"
+          cp -R "$runner_dir/web" ./web
       - working-directory: apps/mobile
         run: flutter pub get
       - working-directory: apps/mobile
