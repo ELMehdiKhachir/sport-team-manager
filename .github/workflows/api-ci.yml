@@ -1,0 +1,45 @@
+name: API CI
+
+on:
+  push:
+    paths:
+      - "apps/api/**"
+      - "infra/docker/api.Dockerfile"
+      - ".github/workflows/api-ci.yml"
+  pull_request:
+    paths:
+      - "apps/api/**"
+      - "infra/docker/api.Dockerfile"
+      - ".github/workflows/api-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/api/package-lock.json
+      - run: npm ci
+      - run: npm run prisma:generate
+      - run: npm run prisma:validate
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sport_team_manager?schema=public
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f infra/docker/api.Dockerfile .
+

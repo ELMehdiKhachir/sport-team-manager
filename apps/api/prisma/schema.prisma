@@ -1,0 +1,11 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// The business model is intentionally deferred until the first validated
+// vertical slice. PostgreSQL/Prisma wiring is established by this bootstrap.
