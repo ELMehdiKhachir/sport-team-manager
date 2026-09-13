@@ -1,11 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sport_team_manager/app/app.dart';
 import 'package:sport_team_manager/core/auth/auth_gateway.dart';
+import 'package:sport_team_manager/core/network/identity_gateway.dart';
 
 void main() {
   testWidgets('shows the sign-in page when signed out', (tester) async {
     await tester.pumpWidget(
-      SportTeamManagerApp(authGateway: _FakeAuthGateway()),
+      SportTeamManagerApp(
+        authGateway: _FakeAuthGateway(),
+        identityGateway: _FakeIdentityGateway(),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -15,7 +19,10 @@ void main() {
 
   testWidgets('opens account creation and password reset', (tester) async {
     await tester.pumpWidget(
-      SportTeamManagerApp(authGateway: _FakeAuthGateway()),
+      SportTeamManagerApp(
+        authGateway: _FakeAuthGateway(),
+        identityGateway: _FakeIdentityGateway(),
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -42,11 +49,13 @@ void main() {
             displayName: 'Mehdi',
           ),
         ),
+        identityGateway: _FakeIdentityGateway(),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(find.text('Bonjour Mehdi !'), findsOneWidget);
+    expect(find.text('Connexion sécurisée validée'), findsOneWidget);
     expect(find.byTooltip('Se déconnecter'), findsOneWidget);
   });
 }
@@ -70,9 +79,21 @@ class _FakeAuthGateway implements AuthGateway {
   Future<void> sendPasswordResetEmail(String email) async {}
 
   @override
+  Future<String?> getIdToken() async => 'firebase-token';
+
+  @override
   Future<void> signIn(
       {required String email, required String password}) async {}
 
   @override
   Future<void> signOut() async {}
+}
+
+class _FakeIdentityGateway implements IdentityGateway {
+  @override
+  Future<ServerIdentity> getCurrentIdentity() async => const ServerIdentity(
+        firebaseUid: 'user-1',
+        email: 'coach@example.com',
+        displayName: 'Mehdi',
+      );
 }

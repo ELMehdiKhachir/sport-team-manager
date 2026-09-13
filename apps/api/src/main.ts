@@ -5,6 +5,13 @@ import { AppModule } from './app.module.js';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: [
+      /^http:\/\/localhost:\d+$/,
+      'https://elmehdikhachir.github.io',
+    ],
+  });
+
   const openApiConfig = new DocumentBuilder()
     .setTitle('Sport Team Manager API')
     .setDescription('REST API for the Sport Team Manager mobile application')

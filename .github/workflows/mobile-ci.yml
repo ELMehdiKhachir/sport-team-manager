@@ -31,6 +31,34 @@ jobs:
       - working-directory: apps/mobile
         run: flutter test
 
+  android-apk-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Android runner without changing app sources
+        working-directory: apps/mobile
+        run: |
+          runner_dir=$(mktemp -d)
+          flutter create --platforms=android --project-name sport_team_manager --org com.sportteammanager --no-pub "$runner_dir"
+          cp -R "$runner_dir/android" ./android
+          sed -i 's/com\.sportteammanager\.sport_team_manager/com.sportteammanager.app/g' \
+            android/app/build.gradle.kts \
+            android/app/src/main/kotlin/com/sportteammanager/sport_team_manager/MainActivity.kt
+      - working-directory: apps/mobile
+        run: flutter pub get
+      - working-directory: apps/mobile
+        run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sport-team-manager-android-apk
+          path: apps/mobile/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 7
+
   web-preview-build:
     runs-on: ubuntu-latest
     steps:
@@ -59,32 +87,3 @@ jobs:
           path: apps/mobile/build/web
           if-no-files-found: error
           retention-days: 7
-
-  android-apk-build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-      - name: Generate Firebase-ready Android runner
-        working-directory: apps/mobile
-        run: |
-          runner_dir=$(mktemp -d)
-          flutter create --platforms=android --org com.sportteammanager --project-name app --no-pub "$runner_dir"
-          cp -R "$runner_dir/android" ./android
-          cp firebase/android/google-services.json ./android/app/google-services.json
-          sed -i '/id("com.android.application") version/a\    id("com.google.gms.google-services") version "4.5.0" apply false' ./android/settings.gradle.kts
-          sed -i '/id("com.android.application")$/a\    id("com.google.gms.google-services")' ./android/app/build.gradle.kts
-      - working-directory: apps/mobile
-        run: flutter pub get
-      - name: Build release APK against the deployed API
-        working-directory: apps/mobile
-        run: flutter build apk --release --dart-define=API_BASE_URL=https://sport-team-manager.onrender.com
-      - uses: actions/upload-artifact@v4
-        with:
-          name: sport-team-manager-android-apk
-          path: apps/mobile/build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
-          retention-days: 14

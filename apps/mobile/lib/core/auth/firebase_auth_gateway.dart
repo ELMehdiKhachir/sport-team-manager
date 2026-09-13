@@ -50,5 +50,12 @@ class FirebaseAuthGateway implements AuthGateway {
       _firebaseAuth.sendPasswordResetEmail(email: email.trim());
 
   @override
+  Future<String?> getIdToken() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) return null;
+    return user.getIdToken();
+  }
+
+  @override
   Future<void> signOut() => _firebaseAuth.signOut();
 }
