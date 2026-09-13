@@ -118,9 +118,7 @@ class _PlayerCard extends StatelessWidget {
             size: 18,
           ),
           label: Text(
-            player.accountAssociated
-                ? 'Compte associé'
-                : 'Compte non associé',
+            player.accountAssociated ? 'Compte associé' : 'Compte non associé',
           ),
           side: BorderSide(color: colors.outlineVariant),
         ),
