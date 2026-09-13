@@ -84,7 +84,8 @@ class _RosterPageState extends State<RosterPage> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
             itemCount: players.length,
             separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) => _PlayerCard(player: players[index]),
+            itemBuilder: (context, index) =>
+                _PlayerCard(player: players[index]),
           );
         },
       ),
@@ -111,11 +112,15 @@ class _PlayerCard extends StatelessWidget {
         ),
         trailing: Chip(
           avatar: Icon(
-            player.accountAssociated ? Icons.verified_user : Icons.person_outline,
+            player.accountAssociated
+                ? Icons.verified_user
+                : Icons.person_outline,
             size: 18,
           ),
           label: Text(
-            player.accountAssociated ? 'Compte associé' : 'Compte non associé',
+            player.accountAssociated
+                ? 'Compte associé'
+                : 'Compte non associé',
           ),
           side: BorderSide(color: colors.outlineVariant),
         ),
@@ -263,7 +268,7 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<PlayerPosition>(
-              value: _primaryPosition,
+              initialValue: _primaryPosition,
               decoration: const InputDecoration(
                 labelText: 'Poste principal',
                 border: OutlineInputBorder(),
@@ -284,7 +289,7 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<PlayerPosition>(
-              value: _secondaryPosition,
+              initialValue: _secondaryPosition,
               decoration: const InputDecoration(
                 labelText: 'Poste secondaire (optionnel)',
                 border: OutlineInputBorder(),
@@ -320,7 +325,7 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<DominantFoot>(
-              value: _dominantFoot,
+              initialValue: _dominantFoot,
               decoration: const InputDecoration(
                 labelText: 'Pied fort (optionnel)',
                 border: OutlineInputBorder(),
@@ -353,7 +358,8 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.person_add_alt_1),
-              label: Text(_submitting ? 'Ajout en cours…' : 'Ajouter le joueur'),
+              label:
+                  Text(_submitting ? 'Ajout en cours…' : 'Ajouter le joueur'),
             ),
           ],
         ),
