@@ -101,26 +101,62 @@ class _PlayerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final positionLabel =
+        '${player.primaryPosition.label}${player.secondaryPosition == null ? '' : ' · ${player.secondaryPosition!.label}'}';
+
     return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          child: Text(player.shirtNumber?.toString() ?? player.firstName[0]),
-        ),
-        title: Text(player.displayName),
-        subtitle: Text(
-          '${player.primaryPosition.label}${player.secondaryPosition == null ? '' : ' · ${player.secondaryPosition!.label}'}',
-        ),
-        trailing: Chip(
-          avatar: Icon(
-            player.accountAssociated
-                ? Icons.verified_user
-                : Icons.person_outline,
-            size: 18,
-          ),
-          label: Text(
-            player.accountAssociated ? 'Compte associé' : 'Compte non associé',
-          ),
-          side: BorderSide(color: colors.outlineVariant),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              child:
+                  Text(player.shirtNumber?.toString() ?? player.firstName[0]),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    player.displayName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    positionLabel,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                  ),
+                  const SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Chip(
+                      visualDensity: VisualDensity.compact,
+                      avatar: Icon(
+                        player.accountAssociated
+                            ? Icons.verified_user
+                            : Icons.person_outline,
+                        size: 18,
+                      ),
+                      label: Text(
+                        player.accountAssociated
+                            ? 'Compte associé'
+                            : 'Compte non associé',
+                      ),
+                      side: BorderSide(color: colors.outlineVariant),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
