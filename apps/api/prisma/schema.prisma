@@ -14,14 +14,28 @@ enum TeamRole {
   PLAYER
 }
 
+enum PlayerPosition {
+  GOALKEEPER
+  FIXO
+  WINGER
+  PIVOT
+}
+
+enum DominantFoot {
+  RIGHT
+  LEFT
+  BOTH
+}
+
 model User {
-  id           String           @id @default(cuid())
-  firebaseUid  String           @unique
-  email        String?
-  displayName  String?
-  memberships TeamMembership[]
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id             String           @id @default(cuid())
+  firebaseUid    String           @unique
+  email          String?
+  displayName    String?
+  memberships    TeamMembership[]
+  playerProfiles PlayerProfile[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 }
 
 model Club {
@@ -38,6 +52,7 @@ model Team {
   clubId      String?
   club        Club?            @relation(fields: [clubId], references: [id], onDelete: SetNull)
   memberships TeamMembership[]
+  players     PlayerProfile[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
@@ -56,4 +71,24 @@ model TeamMembership {
 
   @@unique([userId, teamId])
   @@index([teamId])
+}
+
+model PlayerProfile {
+  id                String          @id @default(cuid())
+  teamId            String
+  userId            String?
+  firstName         String
+  lastName          String
+  primaryPosition   PlayerPosition
+  secondaryPosition PlayerPosition?
+  shirtNumber       Int?
+  dominantFoot      DominantFoot?
+  team              Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user              User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([teamId, lastName, firstName])
 }

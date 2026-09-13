@@ -7,6 +7,7 @@ import { PrismaModule } from './infrastructure/prisma/prisma.module.js';
 import { IdentityModule } from './modules/identity/identity.module.js';
 import { ClubModule } from './modules/club/club.module.js';
 import { TeamModule } from './modules/team/team.module.js';
+import { RosterModule } from './modules/roster/roster.module.js';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { TeamModule } from './modules/team/team.module.js';
     IdentityModule,
     ClubModule,
     TeamModule,
+    RosterModule,
   ],
   controllers: [AppController],
   providers: [AppService],

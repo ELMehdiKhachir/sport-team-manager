@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sport_team_manager/core/auth/auth_gateway.dart';
 import 'package:sport_team_manager/core/network/identity_gateway.dart';
+import 'package:sport_team_manager/core/network/player_gateway.dart';
 import 'package:sport_team_manager/core/network/team_gateway.dart';
 import 'package:sport_team_manager/features/auth/presentation/auth_page.dart';
 import 'package:sport_team_manager/features/home/presentation/home_page.dart';
@@ -10,12 +11,14 @@ class AuthGate extends StatelessWidget {
     required this.authGateway,
     required this.identityGateway,
     required this.teamGateway,
+    required this.playerGateway,
     super.key,
   });
 
   final AuthGateway authGateway;
   final IdentityGateway identityGateway;
   final TeamGateway teamGateway;
+  final PlayerGateway playerGateway;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +38,7 @@ class AuthGate extends StatelessWidget {
           user: user,
           identityGateway: identityGateway,
           teamGateway: teamGateway,
+          playerGateway: playerGateway,
           onSignOut: authGateway.signOut,
         );
       },

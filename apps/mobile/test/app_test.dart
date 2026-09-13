@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sport_team_manager/app/app.dart';
 import 'package:sport_team_manager/core/auth/auth_gateway.dart';
 import 'package:sport_team_manager/core/network/identity_gateway.dart';
+import 'package:sport_team_manager/core/network/player_gateway.dart';
 import 'package:sport_team_manager/core/network/team_gateway.dart';
 
 void main() {
@@ -12,6 +13,7 @@ void main() {
         authGateway: _FakeAuthGateway(),
         identityGateway: _FakeIdentityGateway(),
         teamGateway: _FakeTeamGateway(),
+        playerGateway: _FakePlayerGateway(),
       ),
     );
     await tester.pumpAndSettle();
@@ -26,6 +28,7 @@ void main() {
         authGateway: _FakeAuthGateway(),
         identityGateway: _FakeIdentityGateway(),
         teamGateway: _FakeTeamGateway(),
+        playerGateway: _FakePlayerGateway(),
       ),
     );
     await tester.pumpAndSettle();
@@ -55,6 +58,7 @@ void main() {
         ),
         identityGateway: _FakeIdentityGateway(),
         teamGateway: _FakeTeamGateway(),
+        playerGateway: _FakePlayerGateway(),
       ),
     );
     await tester.pumpAndSettle();
@@ -78,6 +82,7 @@ void main() {
         ),
         identityGateway: _FakeIdentityGateway(),
         teamGateway: teamGateway,
+        playerGateway: _FakePlayerGateway(),
       ),
     );
     await tester.pumpAndSettle();
@@ -95,6 +100,7 @@ void main() {
     expect(find.text('Seniors 1'), findsOneWidget);
     expect(find.text('Mon Club'), findsOneWidget);
     expect(find.text('Manager'), findsOneWidget);
+    expect(find.text('Ouvrir l’effectif'), findsOneWidget);
   });
 }
 
@@ -161,4 +167,37 @@ class _FakeTeamGateway implements TeamGateway {
 
   @override
   Future<List<TeamSummary>> getMyTeams() async => List.of(teams);
+}
+
+class _FakePlayerGateway implements PlayerGateway {
+  final players = <PlayerSummary>[];
+
+  @override
+  Future<List<PlayerSummary>> listPlayers(String teamId) async =>
+      players.where((player) => player.teamId == teamId).toList();
+
+  @override
+  Future<PlayerSummary> createPlayer({
+    required String teamId,
+    required String firstName,
+    required String lastName,
+    required PlayerPosition primaryPosition,
+    PlayerPosition? secondaryPosition,
+    int? shirtNumber,
+    DominantFoot? dominantFoot,
+  }) async {
+    final player = PlayerSummary(
+      id: 'player-${players.length + 1}',
+      teamId: teamId,
+      firstName: firstName,
+      lastName: lastName,
+      primaryPosition: primaryPosition,
+      secondaryPosition: secondaryPosition,
+      shirtNumber: shirtNumber,
+      dominantFoot: dominantFoot,
+      accountAssociated: false,
+    );
+    players.add(player);
+    return player;
+  }
 }

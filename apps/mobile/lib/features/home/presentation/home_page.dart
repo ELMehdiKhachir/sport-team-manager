@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:sport_team_manager/core/auth/auth_gateway.dart';
 import 'package:sport_team_manager/core/network/identity_gateway.dart';
+import 'package:sport_team_manager/core/network/player_gateway.dart';
 import 'package:sport_team_manager/core/network/team_gateway.dart';
+import 'package:sport_team_manager/features/team/presentation/roster_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
     required this.user,
     required this.identityGateway,
     required this.teamGateway,
+    required this.playerGateway,
     required this.onSignOut,
     super.key,
   });
@@ -15,6 +18,7 @@ class HomePage extends StatefulWidget {
   final AuthUser user;
   final IdentityGateway identityGateway;
   final TeamGateway teamGateway;
+  final PlayerGateway playerGateway;
   final Future<void> Function() onSignOut;
 
   @override
@@ -131,7 +135,10 @@ class _HomePageState extends State<HomePage> {
                         onCreated: _retry,
                       )
                     else
-                      _TeamCard(team: data.teams.first),
+                      _TeamCard(
+                        team: data.teams.first,
+                        playerGateway: widget.playerGateway,
+                      ),
                   ],
                 );
               },
@@ -271,9 +278,10 @@ class _CreateClubCardState extends State<_CreateClubCard> {
 }
 
 class _TeamCard extends StatelessWidget {
-  const _TeamCard({required this.team});
+  const _TeamCard({required this.team, required this.playerGateway});
 
   final TeamSummary team;
+  final PlayerGateway playerGateway;
 
   @override
   Widget build(BuildContext context) {
@@ -281,32 +289,51 @@ class _TeamCard extends StatelessWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            CircleAvatar(
-              backgroundColor: colors.primaryContainer,
-              foregroundColor: colors.onPrimaryContainer,
-              child: const Icon(Icons.sports_soccer),
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: colors.primaryContainer,
+                  foregroundColor: colors.onPrimaryContainer,
+                  child: const Icon(Icons.sports_soccer),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        team.name,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+                      if (team.clubName != null) Text(team.clubName!),
+                      const SizedBox(height: 8),
+                      Chip(
+                        avatar:
+                            const Icon(Icons.admin_panel_settings, size: 18),
+                        label: Text(_rolesLabel(team.roles)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    team.name,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+            const SizedBox(height: 16),
+            FilledButton.tonalIcon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => RosterPage(
+                    team: team,
+                    playerGateway: playerGateway,
                   ),
-                  if (team.clubName != null) Text(team.clubName!),
-                  const SizedBox(height: 8),
-                  Chip(
-                    avatar: const Icon(Icons.admin_panel_settings, size: 18),
-                    label: Text(_rolesLabel(team.roles)),
-                  ),
-                ],
+                ),
               ),
+              icon: const Icon(Icons.groups_2_outlined),
+              label: const Text('Ouvrir l’effectif'),
             ),
           ],
         ),
