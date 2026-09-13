@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { TeamRole } from '../../generated/prisma/enums.js';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service.js';
 import {
+  type ClaimInviteInput,
   type CreatePlayerRecord,
   type PlayerSummary,
   RosterRepository,
@@ -24,6 +26,16 @@ export class PrismaRosterRepository implements RosterRepository {
       orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
     });
     return players.map((player) => this.toSummary(player));
+  }
+
+  async findById(
+    teamId: string,
+    playerId: string,
+  ): Promise<PlayerSummary | null> {
+    const player = await this.prisma.playerProfile.findFirst({
+      where: { id: playerId, teamId },
+    });
+    return player ? this.toSummary(player) : null;
   }
 
   async findDuplicate(
@@ -54,6 +66,75 @@ export class PrismaRosterRepository implements RosterRepository {
       },
     });
     return this.toSummary(player);
+  }
+
+  async saveInvite(
+    playerId: string,
+    tokenHash: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    await this.prisma.playerProfile.update({
+      where: { id: playerId },
+      data: { inviteTokenHash: tokenHash, inviteExpiresAt: expiresAt },
+    });
+  }
+
+  async claimInvite(input: ClaimInviteInput): Promise<PlayerSummary | null> {
+    return this.prisma.$transaction(async (tx) => {
+      const player = await tx.playerProfile.findFirst({
+        where: {
+          inviteTokenHash: input.tokenHash,
+          inviteExpiresAt: { gt: input.now },
+          userId: null,
+        },
+      });
+      if (!player) return null;
+
+      const user = await tx.user.upsert({
+        where: { firebaseUid: input.firebaseUid },
+        update: {
+          email: input.email,
+          displayName: input.displayName,
+        },
+        create: {
+          firebaseUid: input.firebaseUid,
+          email: input.email,
+          displayName: input.displayName,
+        },
+      });
+
+      const membership = await tx.teamMembership.findUnique({
+        where: { userId_teamId: { userId: user.id, teamId: player.teamId } },
+      });
+
+      if (membership) {
+        if (!membership.roles.includes(TeamRole.PLAYER)) {
+          await tx.teamMembership.update({
+            where: { id: membership.id },
+            data: { roles: [...membership.roles, TeamRole.PLAYER] },
+          });
+        }
+      } else {
+        await tx.teamMembership.create({
+          data: {
+            userId: user.id,
+            teamId: player.teamId,
+            roles: [TeamRole.PLAYER],
+          },
+        });
+      }
+
+      const claimed = await tx.playerProfile.update({
+        where: { id: player.id },
+        data: {
+          userId: user.id,
+          inviteTokenHash: null,
+          inviteExpiresAt: null,
+        },
+      });
+
+      return this.toSummary(claimed);
+    });
   }
 
   private toSummary(player: {
