@@ -10,7 +10,10 @@ void main() {
       baseUrl: 'https://api.example.com',
       idTokenProvider: () async => 'valid-token',
       client: MockClient((request) async {
-        expect(request.url.toString(), 'https://api.example.com/teams/team-1/players');
+        expect(
+          request.url.toString(),
+          'https://api.example.com/teams/team-1/players',
+        );
         expect(request.headers['Authorization'], 'Bearer valid-token');
         return http.Response(
           '[{"id":"player-1","teamId":"team-1","firstName":"Amine",'
