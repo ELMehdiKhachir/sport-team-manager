@@ -10,9 +10,14 @@ import {
 import { CurrentFirebaseIdentity } from '../../infrastructure/firebase/current-firebase-identity.decorator.js';
 import { FirebaseAuthGuard } from '../../infrastructure/firebase/firebase-auth.guard.js';
 import type { FirebaseIdentity } from '../../infrastructure/firebase/firebase-identity.js';
+import { ClaimPlayerInvitationDto } from './claim-player-invitation.dto.js';
 import { CreatePlayerDto } from './create-player.dto.js';
 import { CreatePlayerService } from './create-player.service.js';
 import { ListPlayersService } from './list-players.service.js';
+import {
+  ClaimPlayerInvitationService,
+  CreatePlayerInvitationService,
+} from './player-invitation.service.js';
 
 @ApiTags('roster')
 @ApiBearerAuth()
@@ -22,6 +27,7 @@ export class RosterController {
   constructor(
     private readonly createPlayer: CreatePlayerService,
     private readonly listPlayers: ListPlayersService,
+    private readonly createInvitation: CreatePlayerInvitationService,
   ) {}
 
   @Get()
@@ -54,5 +60,35 @@ export class RosterController {
       shirtNumber: body.shirtNumber,
       dominantFoot: body.dominantFoot,
     });
+  }
+
+  @Post(':playerId/invitation')
+  @ApiOperation({ summary: 'Create or regenerate a player invitation' })
+  @ApiCreatedResponse({ description: 'Secure invitation token created' })
+  @ApiForbiddenResponse({ description: 'Roster management is not allowed' })
+  invite(
+    @Param('teamId') teamId: string,
+    @Param('playerId') playerId: string,
+    @CurrentFirebaseIdentity() identity: FirebaseIdentity,
+  ) {
+    return this.createInvitation.execute(identity.firebaseUid, teamId, playerId);
+  }
+}
+
+@ApiTags('roster')
+@ApiBearerAuth()
+@UseGuards(FirebaseAuthGuard)
+@Controller('player-invitations')
+export class PlayerInvitationController {
+  constructor(private readonly claimInvitation: ClaimPlayerInvitationService) {}
+
+  @Post('claim')
+  @ApiOperation({ summary: 'Claim an existing player profile with an invitation' })
+  @ApiOkResponse({ description: 'Player profile associated to the current user' })
+  claim(
+    @Body() body: ClaimPlayerInvitationDto,
+    @CurrentFirebaseIdentity() identity: FirebaseIdentity,
+  ) {
+    return this.claimInvitation.execute(identity, body.token);
   }
 }
