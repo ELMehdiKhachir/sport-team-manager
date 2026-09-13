@@ -60,14 +60,14 @@ class FunctionalColors extends ThemeExtension<FunctionalColors> {
 
 abstract final class AppTheme {
   static ThemeData light(ClubPalette club) => _build(
-    club,
-    Brightness.light,
-  );
+        club,
+        Brightness.light,
+      );
 
   static ThemeData dark(ClubPalette club) => _build(
-    club,
-    Brightness.dark,
-  );
+        club,
+        Brightness.dark,
+      );
 
   static ThemeData _build(ClubPalette club, Brightness brightness) {
     var scheme = ColorScheme.fromSeed(
