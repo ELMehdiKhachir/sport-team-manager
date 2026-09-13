@@ -27,10 +27,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<_HomeData> _homeRequest;
+  String? _pendingInviteToken;
 
   @override
   void initState() {
     super.initState();
+    _pendingInviteToken = Uri.base.queryParameters['invite']?.trim();
+    if (_pendingInviteToken?.isEmpty == true) _pendingInviteToken = null;
     _reload();
   }
 
@@ -46,6 +49,35 @@ class _HomePageState extends State<HomePage> {
 
   void _retry() {
     setState(_reload);
+  }
+
+  Future<void> _claimInvite() async {
+    final token = _pendingInviteToken;
+    if (token == null) return;
+    try {
+      final player = await widget.playerGateway.claimInvitation(token);
+      if (!mounted) return;
+      setState(() {
+        _pendingInviteToken = null;
+        _reload();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Profil ${player.displayName} associé. Tu as rejoint l’équipe.',
+          ),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Invitation invalide, expirée ou déjà utilisée. Demande un nouveau lien au manager.',
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -128,6 +160,42 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
+                    if (_pendingInviteToken != null) ...[
+                      const SizedBox(height: 12),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Icon(
+                                Icons.link_rounded,
+                                color: colors.primary,
+                                size: 32,
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                'Invitation reçue',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Ce lien permet de rattacher ton compte au profil joueur préparé par ton équipe.',
+                              ),
+                              const SizedBox(height: 16),
+                              FilledButton.icon(
+                                onPressed: _claimInvite,
+                                icon: const Icon(Icons.group_add),
+                                label: const Text('Rejoindre mon équipe'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 12),
                     if (data!.teams.isEmpty)
                       _CreateClubCard(
