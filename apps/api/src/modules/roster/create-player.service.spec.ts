@@ -6,6 +6,7 @@ import {
 } from '../../generated/prisma/enums.js';
 import { CreatePlayerService } from './create-player.service.js';
 import {
+  type ClaimInviteInput,
   type CreatePlayerRecord,
   type PlayerSummary,
   RosterRepository,
@@ -92,6 +93,10 @@ class FakeRosterRepository extends RosterRepository {
     return Promise.resolve([]);
   }
 
+  findById() {
+    return Promise.resolve(playerFixture);
+  }
+
   findDuplicate() {
     return Promise.resolve(this.duplicate);
   }
@@ -107,5 +112,13 @@ class FakeRosterRepository extends RosterRepository {
       shirtNumber: input.shirtNumber ?? null,
       dominantFoot: input.dominantFoot ?? null,
     });
+  }
+
+  saveInvite() {
+    return Promise.resolve();
+  }
+
+  claimInvite(_input: ClaimInviteInput) {
+    return Promise.resolve(playerFixture);
   }
 }
