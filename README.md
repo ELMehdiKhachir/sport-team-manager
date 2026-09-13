@@ -1,6 +1,6 @@
 # Sport Team Manager
 
-Mobile-first assistant for amateur futsal coaches. The technical MVP foundation is validated and the first business slice is now implemented: authenticated users can create a club with its initial team and retrieve their teams. The next business step is roster/player pre-creation after functional validation of the current slice.
+Mobile-first assistant for amateur futsal coaches. The technical MVP foundation is validated. Slice 01.1 — creating a club and its initial team — is functionally validated, and Slice 01.2 — pre-creating a player without requiring an account — is implemented and awaiting product validation.
 
 ## Repository layout
 
@@ -57,9 +57,10 @@ No state-management, router or model-generation library is selected yet. The cur
 - Technical bootstrap: validated.
 - Neon + Render + Firebase authentication foundation: validated.
 - Authenticated `GET /identity/me`: validated end-to-end.
-- Slice 01.1 — create club + initial team: implemented on `main`, with Prisma migration, NestJS API, Flutter integration and automated tests.
-- Current gate before marking Slice 01.1 done: functional validation on a real device against the deployed backend.
-- Next business step after validation: pre-create a player while preserving the future account-claim flow without duplicates.
+- Slice 01.1 — create club + initial team: validated functionally and complete.
+- Slice 01.2 — pre-create player: implemented on `main` with `PlayerProfile`, Prisma migration, authenticated roster API, backend permissions, duplicate protection, Flutter roster page, add-player form and automated tests.
+- API CI is green. Flutter formatting, analysis, tests and Web build are green, and the latest Web preview is deployed on GitHub Pages.
+- Current gate before marking Slice 01.2 done: functional validation on the deployed app — add a player, confirm `Compte non associé`, reload, and verify persistence.
 
 ## Validation
 
