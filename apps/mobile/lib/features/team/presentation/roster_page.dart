@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sport_team_manager/core/network/player_gateway.dart';
 import 'package:sport_team_manager/core/network/team_gateway.dart';
 
@@ -48,6 +49,61 @@ class _RosterPageState extends State<RosterPage> {
     }
   }
 
+  Future<void> _invite(PlayerSummary player) async {
+    try {
+      final invitation = await widget.playerGateway.createInvitation(
+        teamId: widget.team.id,
+        playerId: player.id,
+      );
+      if (!mounted) return;
+      final link =
+          'https://elmehdikhachir.github.io/sport-team-manager/?invite=${Uri.encodeQueryComponent(invitation.token)}';
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Inviter ${player.firstName}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Envoie ce lien au joueur. Après connexion, il pourra rattacher ce profil existant à son compte.',
+              ),
+              const SizedBox(height: 16),
+              SelectableText(link),
+              const SizedBox(height: 12),
+              Text(
+                'Lien valable jusqu’au ${MaterialLocalizations.of(context).formatMediumDate(invitation.expiresAt.toLocal())}.',
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Fermer'),
+            ),
+            FilledButton.icon(
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: link));
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Lien copié. Tu peux le partager sur WhatsApp.')),
+                );
+              },
+              icon: const Icon(Icons.copy),
+              label: const Text('Copier le lien'),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Impossible de générer l’invitation.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,8 +140,11 @@ class _RosterPageState extends State<RosterPage> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
             itemCount: players.length,
             separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) =>
-                _PlayerCard(player: players[index]),
+            itemBuilder: (context, index) => _PlayerCard(
+              player: players[index],
+              canInvite: _canManage && !players[index].accountAssociated,
+              onInvite: () => _invite(players[index]),
+            ),
           );
         },
       ),
@@ -94,9 +153,15 @@ class _RosterPageState extends State<RosterPage> {
 }
 
 class _PlayerCard extends StatelessWidget {
-  const _PlayerCard({required this.player});
+  const _PlayerCard({
+    required this.player,
+    required this.canInvite,
+    required this.onInvite,
+  });
 
   final PlayerSummary player;
+  final bool canInvite;
+  final VoidCallback onInvite;
 
   @override
   Widget build(BuildContext context) {
@@ -135,23 +200,32 @@ class _PlayerCard extends StatelessWidget {
                         ),
                   ),
                   const SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Chip(
-                      visualDensity: VisualDensity.compact,
-                      avatar: Icon(
-                        player.accountAssociated
-                            ? Icons.verified_user
-                            : Icons.person_outline,
-                        size: 18,
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      Chip(
+                        visualDensity: VisualDensity.compact,
+                        avatar: Icon(
+                          player.accountAssociated
+                              ? Icons.verified_user
+                              : Icons.person_outline,
+                          size: 18,
+                        ),
+                        label: Text(
+                          player.accountAssociated
+                              ? 'Compte associé'
+                              : 'Compte non associé',
+                        ),
+                        side: BorderSide(color: colors.outlineVariant),
                       ),
-                      label: Text(
-                        player.accountAssociated
-                            ? 'Compte associé'
-                            : 'Compte non associé',
-                      ),
-                      side: BorderSide(color: colors.outlineVariant),
-                    ),
+                      if (canInvite)
+                        OutlinedButton.icon(
+                          onPressed: onInvite,
+                          icon: const Icon(Icons.link),
+                          label: const Text('Inviter'),
+                        ),
+                    ],
                   ),
                 ],
               ),
