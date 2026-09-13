@@ -28,6 +28,14 @@ export type CreatePlayerRecord = {
   dominantFoot?: DominantFoot;
 };
 
+export type ClaimInviteInput = {
+  tokenHash: string;
+  now: Date;
+  firebaseUid: string;
+  email?: string;
+  displayName?: string;
+};
+
 export abstract class RosterRepository {
   abstract getMembershipRoles(
     firebaseUid: string,
@@ -36,6 +44,11 @@ export abstract class RosterRepository {
 
   abstract list(teamId: string): Promise<PlayerSummary[]>;
 
+  abstract findById(
+    teamId: string,
+    playerId: string,
+  ): Promise<PlayerSummary | null>;
+
   abstract findDuplicate(
     teamId: string,
     firstName: string,
@@ -43,4 +56,12 @@ export abstract class RosterRepository {
   ): Promise<PlayerSummary | null>;
 
   abstract create(input: CreatePlayerRecord): Promise<PlayerSummary>;
+
+  abstract saveInvite(
+    playerId: string,
+    tokenHash: string,
+    expiresAt: Date,
+  ): Promise<void>;
+
+  abstract claimInvite(input: ClaimInviteInput): Promise<PlayerSummary | null>;
 }
