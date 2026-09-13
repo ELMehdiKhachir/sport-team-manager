@@ -35,8 +35,7 @@ class HttpIdentityGateway implements IdentityGateway {
     }
 
     final payload = jsonDecode(response.body);
-    if (payload is! Map<String, dynamic> ||
-        payload['firebaseUid'] is! String) {
+    if (payload is! Map<String, dynamic> || payload['firebaseUid'] is! String) {
       throw const IdentityRequestException('Réponse inattendue de l’API.');
     }
 
