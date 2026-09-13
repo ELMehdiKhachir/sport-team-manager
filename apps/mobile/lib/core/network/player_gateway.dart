@@ -55,6 +55,13 @@ class PlayerSummary {
   String get displayName => '$firstName $lastName';
 }
 
+class PlayerInvitation {
+  const PlayerInvitation({required this.token, required this.expiresAt});
+
+  final String token;
+  final DateTime expiresAt;
+}
+
 abstract interface class PlayerGateway {
   Future<List<PlayerSummary>> listPlayers(String teamId);
 
@@ -67,4 +74,11 @@ abstract interface class PlayerGateway {
     int? shirtNumber,
     DominantFoot? dominantFoot,
   });
+
+  Future<PlayerInvitation> createInvitation({
+    required String teamId,
+    required String playerId,
+  });
+
+  Future<PlayerSummary> claimInvitation(String token);
 }
