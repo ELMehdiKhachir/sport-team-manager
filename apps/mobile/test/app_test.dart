@@ -82,7 +82,9 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(find.bySemanticsLabel('Nom du club'), 'Mon Club');
-    await tester.enterText(find.bySemanticsLabel('Nom de l’équipe'), 'Seniors 1');
+    await tester.enterText(
+        find.bySemanticsLabel('Nom de l’équipe'), 'Seniors 1');
+    await tester.ensureVisible(find.text('Créer mon équipe'));
     await tester.tap(find.text('Créer mon équipe'));
     await tester.pumpAndSettle();
 

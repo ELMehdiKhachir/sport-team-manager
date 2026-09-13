@@ -94,8 +94,7 @@ class _HomePageState extends State<HomePage> {
                 }
 
                 final data = snapshot.data;
-                final isVerified =
-                    data?.identity.firebaseUid == widget.user.id;
+                final isVerified = data?.identity.firebaseUid == widget.user.id;
                 if (snapshot.hasError || !isVerified) {
                   return Card(
                     child: ListTile(
@@ -193,9 +192,8 @@ class _CreateClubCardState extends State<_CreateClubCard> {
     }
   }
 
-  String? _required(String? value) => value?.trim().isEmpty ?? true
-      ? 'Ce champ est obligatoire.'
-      : null;
+  String? _required(String? value) =>
+      value?.trim().isEmpty ?? true ? 'Ce champ est obligatoire.' : null;
 
   @override
   Widget build(BuildContext context) {
