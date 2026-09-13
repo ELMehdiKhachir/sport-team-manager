@@ -87,7 +87,11 @@ class _RosterPageState extends State<RosterPage> {
                 await Clipboard.setData(ClipboardData(text: link));
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Lien copié. Tu peux le partager sur WhatsApp.')),
+                  const SnackBar(
+                    content: Text(
+                      'Lien copié. Tu peux le partager sur WhatsApp.',
+                    ),
+                  ),
                 );
               },
               icon: const Icon(Icons.copy),
