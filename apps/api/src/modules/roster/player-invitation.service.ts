@@ -65,8 +65,10 @@ export class ClaimPlayerInvitationService {
   ) {}
 
   async execute(identity: FirebaseIdentity, token: string): Promise<PlayerSummary> {
-    const normalized = token.trim();
-    if (!normalized) throw new UnauthorizedException('Invitation token is required');
+    const normalized = token?.trim();
+    if (!normalized || normalized.length < 20) {
+      throw new UnauthorizedException('Invitation token is invalid');
+    }
 
     const player = await this.rosterRepository.claimInvite({
       tokenHash: hashToken(normalized),
