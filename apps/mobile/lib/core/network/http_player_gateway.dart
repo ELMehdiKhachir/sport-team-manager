@@ -55,6 +55,37 @@ class HttpPlayerGateway implements PlayerGateway {
     return _fromPayload(_decode(response));
   }
 
+  @override
+  Future<PlayerInvitation> createInvitation({
+    required String teamId,
+    required String playerId,
+  }) async {
+    final response = await _client.post(
+      _baseUri.resolve('/teams/$teamId/players/$playerId/invitation'),
+      headers: await _headers(),
+    );
+    final payload = _decode(response);
+    if (payload is! Map<String, dynamic> ||
+        payload['token'] is! String ||
+        payload['expiresAt'] is! String) {
+      throw const PlayerRequestException('Réponse inattendue de l’API.');
+    }
+    return PlayerInvitation(
+      token: payload['token'] as String,
+      expiresAt: DateTime.parse(payload['expiresAt'] as String),
+    );
+  }
+
+  @override
+  Future<PlayerSummary> claimInvitation(String token) async {
+    final response = await _client.post(
+      _baseUri.resolve('/player-invitations/claim'),
+      headers: await _headers(includeJson: true),
+      body: jsonEncode({'token': token}),
+    );
+    return _fromPayload(_decode(response));
+  }
+
   Future<Map<String, String>> _headers({bool includeJson = false}) async {
     final token = await _idTokenProvider();
     if (token == null || token.isEmpty) {
