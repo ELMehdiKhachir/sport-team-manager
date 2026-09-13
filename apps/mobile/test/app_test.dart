@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sport_team_manager/app/app.dart';
 import 'package:sport_team_manager/core/auth/auth_gateway.dart';
@@ -84,7 +85,8 @@ void main() {
     await tester.enterText(find.bySemanticsLabel('Nom du club'), 'Mon Club');
     await tester.enterText(
         find.bySemanticsLabel('Nom de l’équipe'), 'Seniors 1');
-    await tester.ensureVisible(find.text('Créer mon équipe'));
+    await tester.drag(find.byType(ListView), const Offset(0, -300));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Créer mon équipe'));
     await tester.pumpAndSettle();
 
