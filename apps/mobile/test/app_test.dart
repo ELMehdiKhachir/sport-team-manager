@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sport_team_manager/app/app.dart';
 import 'package:sport_team_manager/core/auth/auth_gateway.dart';
 import 'package:sport_team_manager/core/network/identity_gateway.dart';
+import 'package:sport_team_manager/core/network/team_gateway.dart';
 
 void main() {
   testWidgets('shows the sign-in page when signed out', (tester) async {
@@ -9,6 +10,7 @@ void main() {
       SportTeamManagerApp(
         authGateway: _FakeAuthGateway(),
         identityGateway: _FakeIdentityGateway(),
+        teamGateway: _FakeTeamGateway(),
       ),
     );
     await tester.pumpAndSettle();
@@ -22,6 +24,7 @@ void main() {
       SportTeamManagerApp(
         authGateway: _FakeAuthGateway(),
         identityGateway: _FakeIdentityGateway(),
+        teamGateway: _FakeTeamGateway(),
       ),
     );
     await tester.pumpAndSettle();
@@ -50,13 +53,44 @@ void main() {
           ),
         ),
         identityGateway: _FakeIdentityGateway(),
+        teamGateway: _FakeTeamGateway(),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(find.text('Bonjour Mehdi !'), findsOneWidget);
     expect(find.text('Connexion sécurisée validée'), findsOneWidget);
+    expect(find.text('Crée ton espace équipe'), findsOneWidget);
     expect(find.byTooltip('Se déconnecter'), findsOneWidget);
+  });
+
+  testWidgets('creates and then displays the first team', (tester) async {
+    final teamGateway = _FakeTeamGateway();
+    await tester.pumpWidget(
+      SportTeamManagerApp(
+        authGateway: _FakeAuthGateway(
+          user: const AuthUser(
+            id: 'user-1',
+            email: 'coach@example.com',
+            displayName: 'Mehdi',
+          ),
+        ),
+        identityGateway: _FakeIdentityGateway(),
+        teamGateway: teamGateway,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.bySemanticsLabel('Nom du club'), 'Mon Club');
+    await tester.enterText(find.bySemanticsLabel('Nom de l’équipe'), 'Seniors 1');
+    await tester.tap(find.text('Créer mon équipe'));
+    await tester.pumpAndSettle();
+
+    expect(teamGateway.createdClubName, 'Mon Club');
+    expect(teamGateway.createdTeamName, 'Seniors 1');
+    expect(find.text('Seniors 1'), findsOneWidget);
+    expect(find.text('Mon Club'), findsOneWidget);
+    expect(find.text('Manager'), findsOneWidget);
   });
 }
 
@@ -96,4 +130,31 @@ class _FakeIdentityGateway implements IdentityGateway {
         email: 'coach@example.com',
         displayName: 'Mehdi',
       );
+}
+
+class _FakeTeamGateway implements TeamGateway {
+  final teams = <TeamSummary>[];
+  String? createdClubName;
+  String? createdTeamName;
+
+  @override
+  Future<TeamSummary> createClubWithTeam({
+    required String clubName,
+    required String teamName,
+  }) async {
+    createdClubName = clubName;
+    createdTeamName = teamName;
+    final team = TeamSummary(
+      id: 'team-1',
+      name: teamName,
+      clubId: 'club-1',
+      clubName: clubName,
+      roles: const ['OWNER_MANAGER'],
+    );
+    teams.add(team);
+    return team;
+  }
+
+  @override
+  Future<List<TeamSummary>> getMyTeams() async => List.of(teams);
 }

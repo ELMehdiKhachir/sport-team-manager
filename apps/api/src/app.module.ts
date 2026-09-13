@@ -5,6 +5,8 @@ import { AppService } from './app.service.js';
 import { FirebaseModule } from './infrastructure/firebase/firebase.module.js';
 import { PrismaModule } from './infrastructure/prisma/prisma.module.js';
 import { IdentityModule } from './modules/identity/identity.module.js';
+import { ClubModule } from './modules/club/club.module.js';
+import { TeamModule } from './modules/team/team.module.js';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { IdentityModule } from './modules/identity/identity.module.js';
     PrismaModule,
     FirebaseModule,
     IdentityModule,
+    ClubModule,
+    TeamModule,
   ],
   controllers: [AppController],
   providers: [AppService],

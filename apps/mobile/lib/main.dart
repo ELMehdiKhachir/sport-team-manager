@@ -4,6 +4,7 @@ import 'package:sport_team_manager/app/app.dart';
 import 'package:sport_team_manager/app/config/app_config.dart';
 import 'package:sport_team_manager/core/auth/firebase_auth_gateway.dart';
 import 'package:sport_team_manager/core/network/http_identity_gateway.dart';
+import 'package:sport_team_manager/core/network/http_team_gateway.dart';
 import 'package:sport_team_manager/firebase_options.dart';
 
 Future<void> main() async {
@@ -16,11 +17,16 @@ Future<void> main() async {
     baseUrl: AppConfig.apiBaseUrl,
     idTokenProvider: authGateway.getIdToken,
   );
+  final teamGateway = HttpTeamGateway(
+    baseUrl: AppConfig.apiBaseUrl,
+    idTokenProvider: authGateway.getIdToken,
+  );
 
   runApp(
     SportTeamManagerApp(
       authGateway: authGateway,
       identityGateway: identityGateway,
+      teamGateway: teamGateway,
     ),
   );
 }

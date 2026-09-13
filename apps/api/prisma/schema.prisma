@@ -7,5 +7,53 @@ datasource db {
   provider = "postgresql"
 }
 
-// The business model is intentionally deferred until the first validated
-// vertical slice. PostgreSQL/Prisma wiring is established by this bootstrap.
+enum TeamRole {
+  OWNER_MANAGER
+  COACH
+  STAFF_ASSISTANT
+  PLAYER
+}
+
+model User {
+  id           String           @id @default(cuid())
+  firebaseUid  String           @unique
+  email        String?
+  displayName  String?
+  memberships TeamMembership[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model Club {
+  id        String   @id @default(cuid())
+  name      String
+  teams     Team[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Team {
+  id          String           @id @default(cuid())
+  name        String
+  clubId      String?
+  club        Club?            @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  memberships TeamMembership[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([clubId])
+}
+
+model TeamMembership {
+  id        String     @id @default(cuid())
+  userId    String
+  teamId    String
+  roles     TeamRole[]
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team      Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([userId, teamId])
+  @@index([teamId])
+}

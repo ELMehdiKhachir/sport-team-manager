@@ -13,6 +13,6 @@ RUN npm ci --omit=dev
 COPY --from=build /workspace/apps/api/dist ./dist
 COPY --from=build /workspace/apps/api/src/generated ./src/generated
 COPY --from=build /workspace/apps/api/prisma ./prisma
+COPY --from=build /workspace/apps/api/prisma.config.ts ./prisma.config.ts
 EXPOSE 3000
-CMD ["node", "dist/main.js"]
-
+CMD ["npm", "run", "start:prod"]

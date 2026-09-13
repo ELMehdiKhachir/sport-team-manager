@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:sport_team_manager/core/auth/auth_gateway.dart';
 import 'package:sport_team_manager/core/network/identity_gateway.dart';
+import 'package:sport_team_manager/core/network/team_gateway.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
     required this.user,
     required this.identityGateway,
+    required this.teamGateway,
     required this.onSignOut,
     super.key,
   });
 
   final AuthUser user;
   final IdentityGateway identityGateway;
+  final TeamGateway teamGateway;
   final Future<void> Function() onSignOut;
 
   @override
@@ -19,24 +22,31 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Future<ServerIdentity> _identityRequest;
+  late Future<_HomeData> _homeRequest;
 
   @override
   void initState() {
     super.initState();
-    _identityRequest = widget.identityGateway.getCurrentIdentity();
+    _reload();
   }
 
-  void _retryIdentityCheck() {
-    setState(() {
-      _identityRequest = widget.identityGateway.getCurrentIdentity();
-    });
+  void _reload() {
+    _homeRequest = _loadHome();
+  }
+
+  Future<_HomeData> _loadHome() async {
+    final identity = await widget.identityGateway.getCurrentIdentity();
+    final teams = await widget.teamGateway.getMyTeams();
+    return _HomeData(identity: identity, teams: teams);
+  }
+
+  void _retry() {
+    setState(_reload);
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-
     final identity = widget.user.displayName?.trim().isNotEmpty == true
         ? widget.user.displayName!.trim()
         : widget.user.email ?? 'Coach';
@@ -53,78 +63,205 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: SafeArea(
-        child: Padding(
+        child: ListView(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Bonjour $identity !',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
+          children: [
+            Text(
+              'Bonjour $identity !',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Ton compte est connecté. Préparons maintenant ton équipe.',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+            ),
+            const SizedBox(height: 24),
+            FutureBuilder<_HomeData>(
+              future: _homeRequest,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const Card(
+                    child: ListTile(
+                      leading: CircularProgressIndicator(),
+                      title: Text('Chargement de ton espace'),
+                      subtitle: Text('Connexion sécurisée à l’équipe…'),
                     ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Ton compte est connecté. Le terrain est prêt pour la suite.',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-              ),
-              const SizedBox(height: 24),
-              FutureBuilder<ServerIdentity>(
-                future: _identityRequest,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState != ConnectionState.done) {
-                    return const Card(
-                      child: ListTile(
-                        leading: CircularProgressIndicator(),
-                        title: Text('Connexion sécurisée à l’API'),
-                        subtitle: Text('Vérification de ton identité…'),
-                      ),
-                    );
-                  }
+                  );
+                }
 
-                  final serverIdentity = snapshot.data;
-                  final isVerified =
-                      serverIdentity?.firebaseUid == widget.user.id;
-
-                  if (snapshot.hasError || !isVerified) {
-                    return Card(
-                      child: ListTile(
-                        leading: Icon(Icons.error_outline, color: colors.error),
-                        title: const Text('API temporairement indisponible'),
-                        subtitle: const Text(
-                          'Impossible de vérifier ton identité pour le moment.',
-                        ),
-                        trailing: IconButton(
-                          tooltip: 'Réessayer',
-                          onPressed: _retryIdentityCheck,
-                          icon: const Icon(Icons.refresh),
-                        ),
-                      ),
-                    );
-                  }
-
+                final data = snapshot.data;
+                final isVerified =
+                    data?.identity.firebaseUid == widget.user.id;
+                if (snapshot.hasError || !isVerified) {
                   return Card(
                     child: ListTile(
-                      leading: Icon(Icons.verified_user, color: colors.primary),
-                      title: const Text('Connexion sécurisée validée'),
+                      leading: Icon(Icons.error_outline, color: colors.error),
+                      title: const Text('API temporairement indisponible'),
                       subtitle: const Text(
-                        'Ton identité a été vérifiée par le serveur.',
+                        'Impossible de charger ton espace pour le moment.',
+                      ),
+                      trailing: IconButton(
+                        tooltip: 'Réessayer',
+                        onPressed: _retry,
+                        icon: const Icon(Icons.refresh),
                       ),
                     ),
                   );
-                },
-              ),
+                }
+
+                return Column(
+                  children: [
+                    Card(
+                      child: ListTile(
+                        leading:
+                            Icon(Icons.verified_user, color: colors.primary),
+                        title: const Text('Connexion sécurisée validée'),
+                        subtitle: const Text(
+                          'Ton identité a été vérifiée par le serveur.',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    if (data!.teams.isEmpty)
+                      _CreateClubCard(
+                        teamGateway: widget.teamGateway,
+                        onCreated: _retry,
+                      )
+                    else
+                      _TeamCard(team: data.teams.first),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CreateClubCard extends StatefulWidget {
+  const _CreateClubCard({
+    required this.teamGateway,
+    required this.onCreated,
+  });
+
+  final TeamGateway teamGateway;
+  final VoidCallback onCreated;
+
+  @override
+  State<_CreateClubCard> createState() => _CreateClubCardState();
+}
+
+class _CreateClubCardState extends State<_CreateClubCard> {
+  final _formKey = GlobalKey<FormState>();
+  final _clubController = TextEditingController();
+  final _teamController = TextEditingController();
+  bool _isSubmitting = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _clubController.dispose();
+    _teamController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _isSubmitting = true;
+      _error = null;
+    });
+
+    try {
+      await widget.teamGateway.createClubWithTeam(
+        clubName: _clubController.text,
+        teamName: _teamController.text,
+      );
+      widget.onCreated();
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isSubmitting = false;
+        _error = 'La création a échoué. Réessaie dans un instant.';
+      });
+    }
+  }
+
+  String? _required(String? value) => value?.trim().isEmpty ?? true
+      ? 'Ce champ est obligatoire.'
+      : null;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.groups_rounded, color: colors.primary, size: 32),
               const SizedBox(height: 12),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.sports_soccer, color: colors.primary),
-                  title: const Text('Thème du club'),
-                  subtitle: const Text(
-                    'Clair, sombre et prêt pour des couleurs dynamiques',
-                  ),
+              Text(
+                'Crée ton espace équipe',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Tu seras manager de cette équipe. Le rôle coach pourra être ajouté séparément.',
+                style: TextStyle(color: colors.onSurfaceVariant),
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _clubController,
+                enabled: !_isSubmitting,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: 'Nom du club',
+                  prefixIcon: Icon(Icons.shield_outlined),
+                  border: OutlineInputBorder(),
+                ),
+                validator: _required,
+              ),
+              const SizedBox(height: 14),
+              TextFormField(
+                controller: _teamController,
+                enabled: !_isSubmitting,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                  labelText: 'Nom de l’équipe',
+                  hintText: 'Ex. Seniors 1',
+                  prefixIcon: Icon(Icons.sports_soccer),
+                  border: OutlineInputBorder(),
+                ),
+                validator: _required,
+                onFieldSubmitted: (_) => _submit(),
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Text(_error!, style: TextStyle(color: colors.error)),
+              ],
+              const SizedBox(height: 18),
+              FilledButton.icon(
+                onPressed: _isSubmitting ? null : _submit,
+                icon: _isSubmitting
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.add),
+                label: Text(
+                  _isSubmitting ? 'Création en cours…' : 'Créer mon équipe',
                 ),
               ),
             ],
@@ -133,4 +270,66 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+class _TeamCard extends StatelessWidget {
+  const _TeamCard({required this.team});
+
+  final TeamSummary team;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: colors.primaryContainer,
+              foregroundColor: colors.onPrimaryContainer,
+              child: const Icon(Icons.sports_soccer),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    team.name,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                  if (team.clubName != null) Text(team.clubName!),
+                  const SizedBox(height: 8),
+                  Chip(
+                    avatar: const Icon(Icons.admin_panel_settings, size: 18),
+                    label: Text(_rolesLabel(team.roles)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _rolesLabel(List<String> roles) => roles
+      .map((role) => switch (role) {
+            'OWNER_MANAGER' => 'Manager',
+            'STAFF_ASSISTANT' => 'Staff',
+            'COACH' => 'Coach',
+            'PLAYER' => 'Joueur',
+            _ => role,
+          })
+      .join(' · ');
+}
+
+class _HomeData {
+  const _HomeData({required this.identity, required this.teams});
+
+  final ServerIdentity identity;
+  final List<TeamSummary> teams;
 }
