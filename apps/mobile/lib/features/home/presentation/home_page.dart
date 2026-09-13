@@ -39,15 +39,15 @@ class HomePage extends StatelessWidget {
               Text(
                 'Bonjour $identity !',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                      fontWeight: FontWeight.w800,
+                    ),
               ),
               const SizedBox(height: 12),
               Text(
                 'Ton compte est connecté. Le terrain est prêt pour la suite.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
+                      color: colors.onSurfaceVariant,
+                    ),
               ),
               const SizedBox(height: 24),
               Card(

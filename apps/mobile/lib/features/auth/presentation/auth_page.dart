@@ -132,9 +132,10 @@ class _AuthPageState extends State<AuthPage> {
                           : isReset
                               ? 'Mot de passe oublié'
                               : 'Bienvenue sur le terrain',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -289,7 +290,9 @@ String _firebaseErrorMessage(String code) {
     'invalid-email' => 'Cette adresse e-mail n’est pas valide.',
     'email-already-in-use' => 'Un compte utilise déjà cette adresse e-mail.',
     'weak-password' => 'Choisis un mot de passe plus robuste.',
-    'invalid-credential' || 'user-not-found' || 'wrong-password' =>
+    'invalid-credential' ||
+    'user-not-found' ||
+    'wrong-password' =>
       'E-mail ou mot de passe incorrect.',
     'user-disabled' => 'Ce compte a été désactivé.',
     'too-many-requests' => 'Trop de tentatives. Réessaie plus tard.',
