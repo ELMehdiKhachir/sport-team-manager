@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:sport_team_manager/app/app.dart';
+import 'package:sport_team_manager/core/auth/firebase_auth_gateway.dart';
 import 'package:sport_team_manager/firebase_options.dart';
 
 Future<void> main() async {
@@ -8,5 +9,5 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const SportTeamManagerApp());
+  runApp(SportTeamManagerApp(authGateway: FirebaseAuthGateway()));
 }

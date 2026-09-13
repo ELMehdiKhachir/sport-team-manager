@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:sport_team_manager/app/theme/app_theme.dart';
-import 'package:sport_team_manager/features/home/presentation/home_page.dart';
+import 'package:sport_team_manager/core/auth/auth_gateway.dart';
+import 'package:sport_team_manager/features/auth/presentation/auth_gate.dart';
 
 class SportTeamManagerApp extends StatelessWidget {
-  const SportTeamManagerApp({super.key});
+  const SportTeamManagerApp({
+    required this.authGateway,
+    super.key,
+  });
+
+  final AuthGateway authGateway;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +21,7 @@ class SportTeamManagerApp extends StatelessWidget {
       theme: AppTheme.light(clubPalette),
       darkTheme: AppTheme.dark(clubPalette),
       themeMode: ThemeMode.system,
-      home: const HomePage(),
+      home: AuthGate(authGateway: authGateway),
     );
   }
 }
