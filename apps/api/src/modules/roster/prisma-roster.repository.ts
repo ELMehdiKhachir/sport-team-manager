@@ -103,6 +103,21 @@ export class PrismaRosterRepository implements RosterRepository {
         },
       });
 
+      const claim = await tx.playerProfile.updateMany({
+        where: {
+          id: player.id,
+          userId: null,
+          inviteTokenHash: input.tokenHash,
+          inviteExpiresAt: { gt: input.now },
+        },
+        data: {
+          userId: user.id,
+          inviteTokenHash: null,
+          inviteExpiresAt: null,
+        },
+      });
+      if (claim.count !== 1) return null;
+
       const membership = await tx.teamMembership.findUnique({
         where: { userId_teamId: { userId: user.id, teamId: player.teamId } },
       });
@@ -124,15 +139,9 @@ export class PrismaRosterRepository implements RosterRepository {
         });
       }
 
-      const claimed = await tx.playerProfile.update({
+      const claimed = await tx.playerProfile.findUniqueOrThrow({
         where: { id: player.id },
-        data: {
-          userId: user.id,
-          inviteTokenHash: null,
-          inviteExpiresAt: null,
-        },
       });
-
       return this.toSummary(claimed);
     });
   }
