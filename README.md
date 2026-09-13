@@ -1,6 +1,6 @@
 # Sport Team Manager
 
-Mobile-first assistant for amateur futsal coaches. This repository contains the technical MVP foundation only; business features are intentionally not implemented yet.
+Mobile-first assistant for amateur futsal coaches. The technical MVP foundation is validated and the first business slice is now implemented: authenticated users can create a club with its initial team and retrieve their teams. The next business step is roster/player pre-creation after functional validation of the current slice.
 
 ## Repository layout
 
@@ -50,7 +50,16 @@ flutter pub get
 flutter run --dart-define=API_BASE_URL=http://localhost:3000
 ```
 
-No state-management, router, HTTP client or model-generation library is selected in this bootstrap.
+No state-management, router or model-generation library is selected yet. The current authenticated API integration uses the `http` package.
+
+## Current implementation status
+
+- Technical bootstrap: validated.
+- Neon + Render + Firebase authentication foundation: validated.
+- Authenticated `GET /identity/me`: validated end-to-end.
+- Slice 01.1 — create club + initial team: implemented on `main`, with Prisma migration, NestJS API, Flutter integration and automated tests.
+- Current gate before marking Slice 01.1 done: functional validation on a real device against the deployed backend.
+- Next business step after validation: pre-create a player while preserving the future account-claim flow without duplicates.
 
 ## Validation
 
@@ -61,4 +70,3 @@ docker build -f infra/docker/api.Dockerfile .
 ```
 
 Google Drive is the product and architecture Source of Truth. Trello tracks execution. GitHub contains implementation. Read [AGENTS.md](AGENTS.md) before important changes.
-
