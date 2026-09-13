@@ -200,4 +200,18 @@ class _FakePlayerGateway implements PlayerGateway {
     players.add(player);
     return player;
   }
+
+  @override
+  Future<PlayerInvitation> createInvitation({
+    required String teamId,
+    required String playerId,
+  }) async =>
+      PlayerInvitation(
+        token: 'fake-invite-token-that-is-long-enough',
+        expiresAt: DateTime(2026, 9, 20),
+      );
+
+  @override
+  Future<PlayerSummary> claimInvitation(String token) async =>
+      players.firstWhere((player) => player.id.isNotEmpty);
 }
