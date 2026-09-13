@@ -59,3 +59,29 @@ jobs:
           path: apps/mobile/build/web
           if-no-files-found: error
           retention-days: 7
+
+  android-apk-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate Android runner with the validated application ID
+        working-directory: apps/mobile
+        run: |
+          runner_dir=$(mktemp -d)
+          flutter create --platforms=android --org com.sportteammanager --project-name app --no-pub "$runner_dir"
+          cp -R "$runner_dir/android" ./android
+      - working-directory: apps/mobile
+        run: flutter pub get
+      - name: Build release APK against the deployed API
+        working-directory: apps/mobile
+        run: flutter build apk --release --dart-define=API_BASE_URL=https://sport-team-manager.onrender.com
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sport-team-manager-android-apk
+          path: apps/mobile/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+          retention-days: 14
