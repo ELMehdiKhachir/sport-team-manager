@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "439239340333",
+    "project_id": "sport-team-manager-ca6c3",
+    "storage_bucket": "sport-team-manager-ca6c3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:439239340333:android:5466a9d03adcf6be2ba3a4",
+        "android_client_info": {
+          "package_name": "com.sportteammanager.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWHZunPQKxH_UZSnjxoAxt4TPIeiE6A8E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
