@@ -1,13 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../infrastructure/prisma/prisma.service.js';
 import { TeamRepository } from './team.repository.js';
-import type { TeamSummary } from './team-summary.js';
+import type { TeamMembershipSummary } from './team-summary.js';
 
 @Injectable()
 export class PrismaTeamRepository implements TeamRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findByFirebaseUid(firebaseUid: string): Promise<TeamSummary[]> {
+  async findByFirebaseUid(
+    firebaseUid: string,
+  ): Promise<TeamMembershipSummary[]> {
     const memberships = await this.prisma.teamMembership.findMany({
       where: { user: { firebaseUid } },
       include: { team: { include: { club: true } } },

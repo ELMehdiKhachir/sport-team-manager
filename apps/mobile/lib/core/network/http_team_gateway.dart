@@ -44,7 +44,8 @@ class HttpTeamGateway implements TeamGateway {
     if (payload is! Map<String, dynamic> ||
         payload['club'] is! Map ||
         payload['team'] is! Map ||
-        payload['roles'] is! List) {
+        payload['roles'] is! List ||
+        payload['permissions'] is! List) {
       throw const TeamRequestException('Réponse inattendue de l’API.');
     }
 
@@ -56,6 +57,7 @@ class HttpTeamGateway implements TeamGateway {
       clubId: club['id'] as String,
       clubName: club['name'] as String,
       roles: List<String>.from(payload['roles'] as List),
+      permissions: List<String>.from(payload['permissions'] as List),
     );
   }
 
@@ -83,7 +85,8 @@ class HttpTeamGateway implements TeamGateway {
     if (value is! Map<String, dynamic> ||
         value['id'] is! String ||
         value['name'] is! String ||
-        value['roles'] is! List) {
+        value['roles'] is! List ||
+        value['permissions'] is! List) {
       throw const TeamRequestException('Réponse inattendue de l’API.');
     }
     final clubValue = value['club'];
@@ -96,6 +99,7 @@ class HttpTeamGateway implements TeamGateway {
       clubId: club['id'] as String?,
       clubName: club['name'] as String?,
       roles: List<String>.from(value['roles'] as List),
+      permissions: List<String>.from(value['permissions'] as List),
     );
   }
 }

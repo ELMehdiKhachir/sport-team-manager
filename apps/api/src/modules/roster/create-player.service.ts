@@ -8,8 +8,11 @@ import {
 import {
   DominantFoot,
   PlayerPosition,
-  TeamRole,
 } from '../../generated/prisma/enums.js';
+import {
+  hasTeamPermission,
+  TeamPermission,
+} from '../team/team-permission.js';
 import {
   ROSTER_REPOSITORY,
   RosterRepository,
@@ -39,10 +42,7 @@ export class CreatePlayerService {
       command.teamId,
     );
     if (
-      !roles?.some(
-        (role) =>
-          role === TeamRole.OWNER_MANAGER || role === TeamRole.COACH,
-      )
+      !hasTeamPermission(roles, TeamPermission.MANAGE_ROSTER)
     ) {
       throw new ForbiddenException('Roster management is not allowed.');
     }

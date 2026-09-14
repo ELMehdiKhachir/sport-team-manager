@@ -1,5 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import type { FirebaseIdentity } from '../../infrastructure/firebase/firebase-identity.js';
+import { permissionsForTeamRoles } from '../team/team-permission.js';
 import {
   CLUB_REPOSITORY,
   ClubRepository,
@@ -13,11 +14,15 @@ export class CreateClubWithTeamService {
     private readonly clubs: ClubRepository,
   ) {}
 
-  execute(input: {
+  async execute(input: {
     identity: FirebaseIdentity;
     clubName: string;
     teamName: string;
-  }): Promise<CreatedClubTeam> {
+  }): Promise<
+    CreatedClubTeam & {
+      permissions: ReturnType<typeof permissionsForTeamRoles>;
+    }
+  > {
     const clubName = input.clubName?.trim();
     const teamName = input.teamName?.trim();
 
@@ -27,10 +32,14 @@ export class CreateClubWithTeamService {
       );
     }
 
-    return this.clubs.createWithInitialTeam({
+    const created = await this.clubs.createWithInitialTeam({
       identity: input.identity,
       clubName,
       teamName,
     });
+    return {
+      ...created,
+      permissions: permissionsForTeamRoles(created.roles),
+    };
   }
 }

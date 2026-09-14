@@ -26,6 +26,11 @@ describe('CreateClubWithTeamService', () => {
       teamName: 'Seniors 1',
     });
     expect(result.roles).toEqual(['OWNER_MANAGER']);
+    expect(result.permissions).toEqual([
+      'VIEW_ROSTER',
+      'MANAGE_ROSTER',
+      'INVITE_PLAYER',
+    ]);
   });
 
   it.each([

@@ -28,6 +28,7 @@ export class TeamController {
           name: 'Seniors 1',
           club: { id: 'club-id', name: 'Futsal Club de Lyon' },
           roles: ['OWNER_MANAGER'],
+          permissions: ['VIEW_ROSTER', 'MANAGE_ROSTER', 'INVITE_PLAYER'],
         },
       ],
     },

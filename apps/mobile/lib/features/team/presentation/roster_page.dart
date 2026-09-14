@@ -20,9 +20,11 @@ class RosterPage extends StatefulWidget {
 class _RosterPageState extends State<RosterPage> {
   late Future<List<PlayerSummary>> _players;
 
-  bool get _canManage => widget.team.roles.any(
-        (role) => role == 'OWNER_MANAGER' || role == 'COACH',
-      );
+  bool get _canManage =>
+      widget.team.allows(TeamPermission.manageRoster);
+
+  bool get _canInvite =>
+      widget.team.allows(TeamPermission.invitePlayer);
 
   @override
   void initState() {
@@ -146,7 +148,7 @@ class _RosterPageState extends State<RosterPage> {
             separatorBuilder: (_, __) => const SizedBox(height: 8),
             itemBuilder: (context, index) => _PlayerCard(
               player: players[index],
-              canInvite: _canManage && !players[index].accountAssociated,
+              canInvite: _canInvite && !players[index].accountAssociated,
               onInvite: () => _invite(players[index]),
             ),
           );

@@ -7,8 +7,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { createHash, randomBytes } from 'node:crypto';
-import { TeamRole } from '../../generated/prisma/enums.js';
 import type { FirebaseIdentity } from '../../infrastructure/firebase/firebase-identity.js';
+import {
+  hasTeamPermission,
+  TeamPermission,
+} from '../team/team-permission.js';
 import {
   ROSTER_REPOSITORY,
   RosterRepository,
@@ -33,9 +36,7 @@ export class CreatePlayerInvitationService {
       firebaseUid,
       teamId,
     );
-    const canManage =
-      roles?.includes(TeamRole.OWNER_MANAGER) || roles?.includes(TeamRole.COACH);
-    if (!canManage) {
+    if (!hasTeamPermission(roles, TeamPermission.INVITE_PLAYER)) {
       throw new ForbiddenException('Roster management is not allowed');
     }
 
