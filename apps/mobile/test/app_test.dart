@@ -164,8 +164,9 @@ void main() {
     expect(find.text('Joueur'), findsOneWidget);
   });
 
-  testWidgets('uses API permissions for roster management actions',
-      (tester) async {
+  testWidgets(
+    'uses API permissions for roster management actions',
+    (tester) async {
     final playerGateway = _FakePlayerGateway(
       initialPlayers: const [
         PlayerSummary(
@@ -215,8 +216,9 @@ void main() {
     expect(find.text('Inviter'), findsOneWidget);
   });
 
-  testWidgets('hides roster management actions without API permissions',
-      (tester) async {
+  testWidgets(
+    'hides roster management actions without API permissions',
+    (tester) async {
     final playerGateway = _FakePlayerGateway(
       initialPlayers: const [
         PlayerSummary(
@@ -326,6 +328,11 @@ class _FakeTeamGateway implements TeamGateway {
       clubId: 'club-1',
       clubName: clubName,
       roles: const ['OWNER_MANAGER'],
+      permissions: const [
+        TeamPermission.viewRoster,
+        TeamPermission.manageRoster,
+        TeamPermission.invitePlayer,
+      ],
     );
     teams.add(team);
     return team;
