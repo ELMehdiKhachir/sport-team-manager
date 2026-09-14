@@ -1,6 +1,6 @@
 # Sport Team Manager
 
-Mobile-first assistant for amateur futsal coaches. The technical MVP foundation and Slices 01.1 through 01.4 are functionally validated: club and initial team creation, player pre-creation, invitation and profile claim, and active-team switching for multi-team users. Slice 01.5 centralizes team-scoped, cumulative business permissions in NestJS and exposes them to Flutter; it is awaiting functional validation.
+Mobile-first assistant for amateur futsal coaches. The technical MVP foundation and Slices 01.1 through 01.4 are functionally validated: club and initial team creation, player pre-creation, invitation and profile claim, and active-team switching for multi-team users. Slices 01.1 through 01.5 are functionally validated and Epic 01 is complete. Team-scoped, cumulative business permissions are enforced by NestJS and exposed to Flutter.
 
 ## Repository layout
 
@@ -61,10 +61,10 @@ No state-management, router or model-generation library is selected yet. The cur
 - Slice 01.2 — pre-create player: functionally validated and complete, including narrow-screen roster layout.
 - Slice 01.3 — invite + claim player profile: functionally validated and complete. The existing `PlayerProfile` is claimed without duplication and the `PLAYER` role is merged without removing existing roles.
 - Slice 01.4 — active-team switching: functionally validated and complete. A multi-team user can select an active team, and the displayed club, roles and roster access follow that choice.
-- Slice 01.5 — business-permission matrix: implemented and in functional review. NestJS computes cumulative team permissions, protects roster mutations and invitations, and Flutter uses API permissions to show management actions.
+- Slice 01.5 — business-permission matrix: functionally validated and complete. NestJS computes cumulative team permissions, protects roster mutations and invitations, and Flutter uses API permissions to show management actions. Manager actions are visible only on authorized teams; Player-only teams retain read access without management actions.
 - Production startup runs `prisma migrate deploy` before NestJS, so committed migrations are applied on Render startup.
 - API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests and Web build are green. GitHub Pages contains the permission-aware version.
-- Next Epic 01 gate: validate that management actions appear for a Manager team and remain hidden for a Player-only team.
+- Epic 01 — foundations (account, club, team and roles): complete.
 
 ## Validation
 
