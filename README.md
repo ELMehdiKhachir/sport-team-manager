@@ -1,6 +1,6 @@
 # Sport Team Manager
 
-Mobile-first assistant for amateur futsal coaches. The technical MVP foundation is validated. Slice 01.1 — creating a club and its initial team — and Slice 01.2 — pre-creating a player without requiring an account — are functionally validated. Slice 01.3 — inviting a player and claiming the existing profile — is implemented and awaiting end-to-end product validation with a second account.
+Mobile-first assistant for amateur futsal coaches. The technical MVP foundation and Slices 01.1 through 01.4 are functionally validated: club and initial team creation, player pre-creation, invitation and profile claim, and active-team switching for multi-team users. The remaining Epic 01 work is the business-permission matrix.
 
 ## Repository layout
 
@@ -59,10 +59,11 @@ No state-management, router or model-generation library is selected yet. The cur
 - Authenticated `GET /identity/me`: validated end-to-end.
 - Slice 01.1 — create club + initial team: functionally validated and complete.
 - Slice 01.2 — pre-create player: functionally validated and complete, including narrow-screen roster layout.
-- Slice 01.3 — invite + claim player profile: implemented on `main` with hashed, expiring, regenerable invite tokens; single-use transactional claim; preservation of the existing `PlayerProfile`; `PLAYER` membership role merge; manager invite UI and authenticated Web claim flow.
-- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests and Web build are green for the invitation flow.
+- Slice 01.3 — invite + claim player profile: functionally validated and complete. The existing `PlayerProfile` is claimed without duplication and the `PLAYER` role is merged without removing existing roles.
+- Slice 01.4 — active-team switching: functionally validated and complete. A multi-team user can select an active team, and the displayed club, roles and roster access follow that choice.
+- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests, Web build and Android APK build are green. GitHub Pages contains the validated multi-team version.
 - Production startup runs `prisma migrate deploy` before NestJS, so committed migrations are applied on Render startup.
-- Current gate before marking Slice 01.3 done: functional validation with two distinct Firebase accounts. The manager generates the link; a different player account opens it, confirms the claim, joins with role `PLAYER`, and the original roster entry becomes associated without duplication.
+- Next Epic 01 gate: define and implement the business-permission matrix for Owner/Manager, Coach, Staff/Assistant and Player.
 
 ## Validation
 
