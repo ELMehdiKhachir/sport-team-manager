@@ -25,6 +25,11 @@ void main() {
     expect(teams.single.name, 'Seniors 1');
     expect(teams.single.clubName, 'Mon Club');
     expect(teams.single.roles, ['OWNER_MANAGER']);
+    expect(teams.single.permissions, [
+      TeamPermission.viewRoster,
+      TeamPermission.manageRoster,
+      TeamPermission.invitePlayer,
+    ]);
   });
 
   test('creates a club with its first team', () async {
