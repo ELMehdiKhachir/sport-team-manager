@@ -102,6 +102,58 @@ void main() {
     expect(find.text('Manager'), findsOneWidget);
     expect(find.text('Ouvrir l’effectif'), findsOneWidget);
   });
+
+  testWidgets('switches the active team', (tester) async {
+    final teamGateway = _FakeTeamGateway(
+      initialTeams: const [
+        TeamSummary(
+          id: 'team-1',
+          name: 'Seniors 1',
+          clubId: 'club-1',
+          clubName: 'Club A',
+          roles: ['OWNER_MANAGER'],
+        ),
+        TeamSummary(
+          id: 'team-2',
+          name: 'Seniors 2',
+          clubId: 'club-2',
+          clubName: 'Club B',
+          roles: ['PLAYER'],
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      SportTeamManagerApp(
+        authGateway: _FakeAuthGateway(
+          user: const AuthUser(
+            id: 'user-1',
+            email: 'coach@example.com',
+            displayName: 'Mehdi',
+          ),
+        ),
+        identityGateway: _FakeIdentityGateway(),
+        teamGateway: teamGateway,
+        playerGateway: _FakePlayerGateway(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<Text>(find.byKey(const Key('active-team-name'))).data,
+      'Seniors 1',
+    );
+
+    await tester.tap(find.byKey(const Key('active-team-selector')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Club B · Seniors 2').last);
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<Text>(find.byKey(const Key('active-team-name'))).data,
+      'Seniors 2',
+    );
+    expect(find.text('Joueur'), findsOneWidget);
+  });
 }
 
 class _FakeAuthGateway implements AuthGateway {
@@ -143,6 +195,10 @@ class _FakeIdentityGateway implements IdentityGateway {
 }
 
 class _FakeTeamGateway implements TeamGateway {
+  _FakeTeamGateway({List<TeamSummary>? initialTeams}) {
+    if (initialTeams != null) teams.addAll(initialTeams);
+  }
+
   final teams = <TeamSummary>[];
   String? createdClubName;
   String? createdTeamName;
