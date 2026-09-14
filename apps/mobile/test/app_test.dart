@@ -214,7 +214,8 @@ void main() {
 
     expect(find.text('Ajouter un joueur'), findsOneWidget);
     expect(find.text('Inviter'), findsOneWidget);
-  });
+    },
+  );
 
   testWidgets(
     'hides roster management actions without API permissions',
@@ -265,7 +266,8 @@ void main() {
 
     expect(find.text('Ajouter un joueur'), findsNothing);
     expect(find.text('Inviter'), findsNothing);
-  });
+    },
+  );
 }
 
 class _FakeAuthGateway implements AuthGateway {
