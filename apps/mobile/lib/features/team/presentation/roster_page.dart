@@ -20,11 +20,9 @@ class RosterPage extends StatefulWidget {
 class _RosterPageState extends State<RosterPage> {
   late Future<List<PlayerSummary>> _players;
 
-  bool get _canManage =>
-      widget.team.allows(TeamPermission.manageRoster);
+  bool get _canManage => widget.team.allows(TeamPermission.manageRoster);
 
-  bool get _canInvite =>
-      widget.team.allows(TeamPermission.invitePlayer);
+  bool get _canInvite => widget.team.allows(TeamPermission.invitePlayer);
 
   @override
   void initState() {
