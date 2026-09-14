@@ -75,6 +75,17 @@ abstract interface class PlayerGateway {
     DominantFoot? dominantFoot,
   });
 
+  Future<PlayerSummary> updatePlayer({
+    required String teamId,
+    required String playerId,
+    required String firstName,
+    required String lastName,
+    required PlayerPosition primaryPosition,
+    PlayerPosition? secondaryPosition,
+    int? shirtNumber,
+    DominantFoot? dominantFoot,
+  });
+
   Future<PlayerInvitation> createInvitation({
     required String teamId,
     required String playerId,

@@ -213,7 +213,18 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Ajouter un joueur'), findsOneWidget);
+      expect(find.text('Modifier'), findsOneWidget);
       expect(find.text('Inviter'), findsOneWidget);
+
+      await tester.tap(find.text('Modifier'));
+      await tester.pumpAndSettle();
+      expect(find.text('Modifier le joueur'), findsOneWidget);
+      await tester.enterText(find.bySemanticsLabel('Nom'), 'Kaci');
+      await tester.tap(find.text('Enregistrer'));
+      await tester.pumpAndSettle();
+
+      expect(playerGateway.updatedPlayerId, 'player-1');
+      expect(find.text('Amine Kaci'), findsOneWidget);
     },
   );
 
@@ -265,6 +276,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Ajouter un joueur'), findsNothing);
+      expect(find.text('Modifier'), findsNothing);
       expect(find.text('Inviter'), findsNothing);
     },
   );
@@ -350,6 +362,7 @@ class _FakePlayerGateway implements PlayerGateway {
   }
 
   final players = <PlayerSummary>[];
+  String? updatedPlayerId;
 
   @override
   Future<List<PlayerSummary>> listPlayers(String teamId) async =>
@@ -378,6 +391,37 @@ class _FakePlayerGateway implements PlayerGateway {
     );
     players.add(player);
     return player;
+  }
+
+  @override
+  Future<PlayerSummary> updatePlayer({
+    required String teamId,
+    required String playerId,
+    required String firstName,
+    required String lastName,
+    required PlayerPosition primaryPosition,
+    PlayerPosition? secondaryPosition,
+    int? shirtNumber,
+    DominantFoot? dominantFoot,
+  }) async {
+    final index = players.indexWhere(
+      (player) => player.id == playerId && player.teamId == teamId,
+    );
+    final current = players[index];
+    final updated = PlayerSummary(
+      id: current.id,
+      teamId: current.teamId,
+      firstName: firstName,
+      lastName: lastName,
+      primaryPosition: primaryPosition,
+      secondaryPosition: secondaryPosition,
+      shirtNumber: shirtNumber,
+      dominantFoot: dominantFoot,
+      accountAssociated: current.accountAssociated,
+    );
+    players[index] = updated;
+    updatedPlayerId = playerId;
+    return updated;
   }
 
   @override

@@ -39,12 +39,28 @@ class _RosterPageState extends State<RosterPage> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (context) => _AddPlayerSheet(
+      builder: (context) => _PlayerFormSheet(
         teamId: widget.team.id,
         playerGateway: widget.playerGateway,
       ),
     );
     if (created == true && mounted) {
+      setState(_reload);
+    }
+  }
+
+  Future<void> _editPlayer(PlayerSummary player) async {
+    final updated = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => _PlayerFormSheet(
+        teamId: widget.team.id,
+        playerGateway: widget.playerGateway,
+        player: player,
+      ),
+    );
+    if (updated == true && mounted) {
       setState(_reload);
     }
   }
@@ -146,7 +162,9 @@ class _RosterPageState extends State<RosterPage> {
             separatorBuilder: (_, __) => const SizedBox(height: 8),
             itemBuilder: (context, index) => _PlayerCard(
               player: players[index],
+              canEdit: _canManage,
               canInvite: _canInvite && !players[index].accountAssociated,
+              onEdit: () => _editPlayer(players[index]),
               onInvite: () => _invite(players[index]),
             ),
           );
@@ -159,12 +177,16 @@ class _RosterPageState extends State<RosterPage> {
 class _PlayerCard extends StatelessWidget {
   const _PlayerCard({
     required this.player,
+    required this.canEdit,
     required this.canInvite,
+    required this.onEdit,
     required this.onInvite,
   });
 
   final PlayerSummary player;
+  final bool canEdit;
   final bool canInvite;
+  final VoidCallback onEdit;
   final VoidCallback onInvite;
 
   @override
@@ -223,6 +245,12 @@ class _PlayerCard extends StatelessWidget {
                         ),
                         side: BorderSide(color: colors.outlineVariant),
                       ),
+                      if (canEdit)
+                        OutlinedButton.icon(
+                          onPressed: onEdit,
+                          icon: const Icon(Icons.edit_outlined),
+                          label: const Text('Modifier'),
+                        ),
                       if (canInvite)
                         OutlinedButton.icon(
                           onPressed: onInvite,
@@ -270,29 +298,45 @@ class _RosterError extends StatelessWidget {
   }
 }
 
-class _AddPlayerSheet extends StatefulWidget {
-  const _AddPlayerSheet({
+class _PlayerFormSheet extends StatefulWidget {
+  const _PlayerFormSheet({
     required this.teamId,
     required this.playerGateway,
+    this.player,
   });
 
   final String teamId;
   final PlayerGateway playerGateway;
+  final PlayerSummary? player;
 
   @override
-  State<_AddPlayerSheet> createState() => _AddPlayerSheetState();
+  State<_PlayerFormSheet> createState() => _PlayerFormSheetState();
 }
 
-class _AddPlayerSheetState extends State<_AddPlayerSheet> {
+class _PlayerFormSheetState extends State<_PlayerFormSheet> {
   final _formKey = GlobalKey<FormState>();
-  final _firstName = TextEditingController();
-  final _lastName = TextEditingController();
-  final _shirtNumber = TextEditingController();
+  late final TextEditingController _firstName;
+  late final TextEditingController _lastName;
+  late final TextEditingController _shirtNumber;
   PlayerPosition? _primaryPosition;
   PlayerPosition? _secondaryPosition;
   DominantFoot? _dominantFoot;
   bool _submitting = false;
   String? _error;
+
+  bool get _editing => widget.player != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final player = widget.player;
+    _firstName = TextEditingController(text: player?.firstName);
+    _lastName = TextEditingController(text: player?.lastName);
+    _shirtNumber = TextEditingController(text: player?.shirtNumber?.toString());
+    _primaryPosition = player?.primaryPosition;
+    _secondaryPosition = player?.secondaryPosition;
+    _dominantFoot = player?.dominantFoot;
+  }
 
   @override
   void dispose() {
@@ -315,23 +359,39 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
       _error = null;
     });
     try {
-      await widget.playerGateway.createPlayer(
-        teamId: widget.teamId,
-        firstName: _firstName.text,
-        lastName: _lastName.text,
-        primaryPosition: _primaryPosition!,
-        secondaryPosition: _secondaryPosition,
-        shirtNumber: _shirtNumber.text.trim().isEmpty
-            ? null
-            : int.tryParse(_shirtNumber.text.trim()),
-        dominantFoot: _dominantFoot,
-      );
+      final shirtNumber = _shirtNumber.text.trim().isEmpty
+          ? null
+          : int.tryParse(_shirtNumber.text.trim());
+      if (_editing) {
+        await widget.playerGateway.updatePlayer(
+          teamId: widget.teamId,
+          playerId: widget.player!.id,
+          firstName: _firstName.text,
+          lastName: _lastName.text,
+          primaryPosition: _primaryPosition!,
+          secondaryPosition: _secondaryPosition,
+          shirtNumber: shirtNumber,
+          dominantFoot: _dominantFoot,
+        );
+      } else {
+        await widget.playerGateway.createPlayer(
+          teamId: widget.teamId,
+          firstName: _firstName.text,
+          lastName: _lastName.text,
+          primaryPosition: _primaryPosition!,
+          secondaryPosition: _secondaryPosition,
+          shirtNumber: shirtNumber,
+          dominantFoot: _dominantFoot,
+        );
+      }
       if (mounted) Navigator.of(context).pop(true);
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _submitting = false;
-        _error = 'Impossible d’ajouter ce joueur. Vérifie les informations.';
+        _error = _editing
+            ? 'Impossible de modifier ce joueur. Vérifie les informations.'
+            : 'Impossible d’ajouter ce joueur. Vérifie les informations.';
       });
     }
   }
@@ -347,14 +407,16 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Ajouter un joueur',
+              _editing ? 'Modifier le joueur' : 'Ajouter un joueur',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w800,
                   ),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Le joueur n’a pas besoin de compte maintenant. Son profil pourra être associé plus tard.',
+            Text(
+              _editing
+                  ? 'Mets à jour les informations sportives du joueur.'
+                  : 'Le joueur n’a pas besoin de compte maintenant. Son profil pourra être associé plus tard.',
             ),
             const SizedBox(height: 20),
             TextFormField(
@@ -418,6 +480,16 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
                   ? null
                   : (value) => setState(() => _secondaryPosition = value),
             ),
+            if (_secondaryPosition != null)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: _submitting
+                      ? null
+                      : () => setState(() => _secondaryPosition = null),
+                  child: const Text('Effacer le poste secondaire'),
+                ),
+              ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _shirtNumber,
@@ -454,6 +526,16 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
                   ? null
                   : (value) => setState(() => _dominantFoot = value),
             ),
+            if (_dominantFoot != null)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: _submitting
+                      ? null
+                      : () => setState(() => _dominantFoot = null),
+                  child: const Text('Effacer le pied fort'),
+                ),
+              ),
             if (_error != null) ...[
               const SizedBox(height: 12),
               Text(
@@ -469,9 +551,12 @@ class _AddPlayerSheetState extends State<_AddPlayerSheet> {
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.person_add_alt_1),
-              label:
-                  Text(_submitting ? 'Ajout en cours…' : 'Ajouter le joueur'),
+                  : Icon(_editing ? Icons.save : Icons.person_add_alt_1),
+              label: Text(
+                _submitting
+                    ? (_editing ? 'Enregistrement…' : 'Ajout en cours…')
+                    : (_editing ? 'Enregistrer' : 'Ajouter le joueur'),
+              ),
             ),
           ],
         ),

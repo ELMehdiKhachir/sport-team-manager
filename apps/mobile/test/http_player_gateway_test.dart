@@ -32,6 +32,43 @@ void main() {
     expect(players.single.accountAssociated, isFalse);
   });
 
+  test('updates a player and sends nullable optional fields', () async {
+    final gateway = HttpPlayerGateway(
+      baseUrl: 'https://api.example.com',
+      idTokenProvider: () async => 'valid-token',
+      client: MockClient((request) async {
+        expect(request.method, 'PATCH');
+        expect(
+          request.url.toString(),
+          'https://api.example.com/teams/team-1/players/player-1',
+        );
+        expect(request.headers['Authorization'], 'Bearer valid-token');
+        expect(request.body, contains('"lastName":"Kaci"'));
+        expect(request.body, contains('"secondaryPosition":null'));
+        expect(request.body, contains('"shirtNumber":null'));
+        expect(request.body, contains('"dominantFoot":null'));
+        return http.Response(
+          '{"id":"player-1","teamId":"team-1","firstName":"Amine",'
+          '"lastName":"Kaci","primaryPosition":"PIVOT",'
+          '"secondaryPosition":null,"shirtNumber":null,"dominantFoot":null,'
+          '"accountAssociated":false}',
+          200,
+        );
+      }),
+    );
+
+    final player = await gateway.updatePlayer(
+      teamId: 'team-1',
+      playerId: 'player-1',
+      firstName: 'Amine',
+      lastName: 'Kaci',
+      primaryPosition: PlayerPosition.pivot,
+    );
+
+    expect(player.displayName, 'Amine Kaci');
+    expect(player.shirtNumber, isNull);
+  });
+
   test('pre-creates a player', () async {
     final gateway = HttpPlayerGateway(
       baseUrl: 'https://api.example.com',

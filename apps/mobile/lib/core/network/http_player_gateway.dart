@@ -56,6 +56,32 @@ class HttpPlayerGateway implements PlayerGateway {
   }
 
   @override
+  Future<PlayerSummary> updatePlayer({
+    required String teamId,
+    required String playerId,
+    required String firstName,
+    required String lastName,
+    required PlayerPosition primaryPosition,
+    PlayerPosition? secondaryPosition,
+    int? shirtNumber,
+    DominantFoot? dominantFoot,
+  }) async {
+    final response = await _client.patch(
+      _baseUri.resolve('/teams/$teamId/players/$playerId'),
+      headers: await _headers(includeJson: true),
+      body: jsonEncode({
+        'firstName': firstName,
+        'lastName': lastName,
+        'primaryPosition': primaryPosition.apiValue,
+        'secondaryPosition': secondaryPosition?.apiValue,
+        'shirtNumber': shirtNumber,
+        'dominantFoot': dominantFoot?.apiValue,
+      }),
+    );
+    return _fromPayload(_decode(response));
+  }
+
+  @override
   Future<PlayerInvitation> createInvitation({
     required String teamId,
     required String playerId,
