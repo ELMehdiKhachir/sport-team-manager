@@ -1,6 +1,6 @@
 # Sport Team Manager
 
-Mobile-first assistant for amateur futsal coaches. The technical MVP foundation and Slices 01.1 through 01.4 are functionally validated: club and initial team creation, player pre-creation, invitation and profile claim, and active-team switching for multi-team users. The remaining Epic 01 work is the business-permission matrix.
+Mobile-first assistant for amateur futsal coaches. The technical MVP foundation and Slices 01.1 through 01.4 are functionally validated: club and initial team creation, player pre-creation, invitation and profile claim, and active-team switching for multi-team users. Slice 01.5 centralizes team-scoped, cumulative business permissions in NestJS and exposes them to Flutter; it is awaiting functional validation.
 
 ## Repository layout
 
@@ -61,9 +61,10 @@ No state-management, router or model-generation library is selected yet. The cur
 - Slice 01.2 — pre-create player: functionally validated and complete, including narrow-screen roster layout.
 - Slice 01.3 — invite + claim player profile: functionally validated and complete. The existing `PlayerProfile` is claimed without duplication and the `PLAYER` role is merged without removing existing roles.
 - Slice 01.4 — active-team switching: functionally validated and complete. A multi-team user can select an active team, and the displayed club, roles and roster access follow that choice.
-- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests, Web build and Android APK build are green. GitHub Pages contains the validated multi-team version.
+- Slice 01.5 — business-permission matrix: implemented and in functional review. NestJS computes cumulative team permissions, protects roster mutations and invitations, and Flutter uses API permissions to show management actions.
 - Production startup runs `prisma migrate deploy` before NestJS, so committed migrations are applied on Render startup.
-- Next Epic 01 gate: define and implement the business-permission matrix for Owner/Manager, Coach, Staff/Assistant and Player.
+- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests and Web build are green. GitHub Pages contains the permission-aware version.
+- Next Epic 01 gate: validate that management actions appear for a Manager team and remain hidden for a Player-only team.
 
 ## Validation
 
