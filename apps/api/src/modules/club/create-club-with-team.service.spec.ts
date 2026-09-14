@@ -39,9 +39,9 @@ describe('CreateClubWithTeamService', () => {
   ])('rejects empty names', async ({ clubName, teamName }) => {
     const service = new CreateClubWithTeamService(new FakeClubRepository());
 
-    expect(() => service.execute({ identity, clubName, teamName })).toThrow(
-      BadRequestException,
-    );
+    await expect(
+      service.execute({ identity, clubName, teamName }),
+    ).rejects.toThrow(BadRequestException);
   });
 });
 
