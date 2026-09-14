@@ -14,7 +14,8 @@ void main() {
         return http.Response(
           '[{"id":"team-1","name":"Seniors 1",'
           '"club":{"id":"club-1","name":"Mon Club"},'
-          '"roles":["OWNER_MANAGER"]}]',
+          '"roles":["OWNER_MANAGER"],'
+          '"permissions":["VIEW_ROSTER","MANAGE_ROSTER","INVITE_PLAYER"]}]',
           200,
         );
       }),
@@ -44,7 +45,8 @@ void main() {
         return http.Response(
           '{"club":{"id":"club-1","name":"Mon Club"},'
           '"team":{"id":"team-1","name":"Seniors 1"},'
-          '"roles":["OWNER_MANAGER"]}',
+          '"roles":["OWNER_MANAGER"],'
+          '"permissions":["VIEW_ROSTER","MANAGE_ROSTER","INVITE_PLAYER"]}',
           201,
         );
       }),
