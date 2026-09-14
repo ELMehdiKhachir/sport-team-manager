@@ -167,105 +167,105 @@ void main() {
   testWidgets(
     'uses API permissions for roster management actions',
     (tester) async {
-    final playerGateway = _FakePlayerGateway(
-      initialPlayers: const [
-        PlayerSummary(
-          id: 'player-1',
-          teamId: 'team-1',
-          firstName: 'Amine',
-          lastName: 'Benali',
-          primaryPosition: PlayerPosition.pivot,
-          accountAssociated: false,
-        ),
-      ],
-    );
-    await tester.pumpWidget(
-      SportTeamManagerApp(
-        authGateway: _FakeAuthGateway(
-          user: const AuthUser(
-            id: 'user-1',
-            email: 'coach@example.com',
-            displayName: 'Mehdi',
+      final playerGateway = _FakePlayerGateway(
+        initialPlayers: const [
+          PlayerSummary(
+            id: 'player-1',
+            teamId: 'team-1',
+            firstName: 'Amine',
+            lastName: 'Benali',
+            primaryPosition: PlayerPosition.pivot,
+            accountAssociated: false,
           ),
-        ),
-        identityGateway: _FakeIdentityGateway(),
-        teamGateway: _FakeTeamGateway(
-          initialTeams: const [
-            TeamSummary(
-              id: 'team-1',
-              name: 'Seniors 1',
-              clubName: 'Club A',
-              roles: ['OWNER_MANAGER'],
-              permissions: [
-                TeamPermission.viewRoster,
-                TeamPermission.manageRoster,
-                TeamPermission.invitePlayer,
-              ],
+        ],
+      );
+      await tester.pumpWidget(
+        SportTeamManagerApp(
+          authGateway: _FakeAuthGateway(
+            user: const AuthUser(
+              id: 'user-1',
+              email: 'coach@example.com',
+              displayName: 'Mehdi',
             ),
-          ],
+          ),
+          identityGateway: _FakeIdentityGateway(),
+          teamGateway: _FakeTeamGateway(
+            initialTeams: const [
+              TeamSummary(
+                id: 'team-1',
+                name: 'Seniors 1',
+                clubName: 'Club A',
+                roles: ['OWNER_MANAGER'],
+                permissions: [
+                  TeamPermission.viewRoster,
+                  TeamPermission.manageRoster,
+                  TeamPermission.invitePlayer,
+                ],
+              ),
+            ],
+          ),
+          playerGateway: playerGateway,
         ),
-        playerGateway: playerGateway,
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Ouvrir l’effectif'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Ouvrir l’effectif'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Ajouter un joueur'), findsOneWidget);
-    expect(find.text('Inviter'), findsOneWidget);
+      expect(find.text('Ajouter un joueur'), findsOneWidget);
+      expect(find.text('Inviter'), findsOneWidget);
     },
   );
 
   testWidgets(
     'hides roster management actions without API permissions',
     (tester) async {
-    final playerGateway = _FakePlayerGateway(
-      initialPlayers: const [
-        PlayerSummary(
-          id: 'player-1',
-          teamId: 'team-1',
-          firstName: 'Amine',
-          lastName: 'Benali',
-          primaryPosition: PlayerPosition.pivot,
-          accountAssociated: false,
-        ),
-      ],
-    );
-    await tester.pumpWidget(
-      SportTeamManagerApp(
-        authGateway: _FakeAuthGateway(
-          user: const AuthUser(
-            id: 'user-1',
-            email: 'player@example.com',
-            displayName: 'Amine',
+      final playerGateway = _FakePlayerGateway(
+        initialPlayers: const [
+          PlayerSummary(
+            id: 'player-1',
+            teamId: 'team-1',
+            firstName: 'Amine',
+            lastName: 'Benali',
+            primaryPosition: PlayerPosition.pivot,
+            accountAssociated: false,
           ),
-        ),
-        identityGateway: _FakeIdentityGateway(),
-        teamGateway: _FakeTeamGateway(
-          initialTeams: const [
-            TeamSummary(
-              id: 'team-1',
-              name: 'Seniors 1',
-              clubName: 'Club A',
-              roles: ['PLAYER'],
-              permissions: [
-                TeamPermission.viewRoster,
-                TeamPermission.respondAvailability,
-              ],
+        ],
+      );
+      await tester.pumpWidget(
+        SportTeamManagerApp(
+          authGateway: _FakeAuthGateway(
+            user: const AuthUser(
+              id: 'user-1',
+              email: 'player@example.com',
+              displayName: 'Amine',
             ),
-          ],
+          ),
+          identityGateway: _FakeIdentityGateway(),
+          teamGateway: _FakeTeamGateway(
+            initialTeams: const [
+              TeamSummary(
+                id: 'team-1',
+                name: 'Seniors 1',
+                clubName: 'Club A',
+                roles: ['PLAYER'],
+                permissions: [
+                  TeamPermission.viewRoster,
+                  TeamPermission.respondAvailability,
+                ],
+              ),
+            ],
+          ),
+          playerGateway: playerGateway,
         ),
-        playerGateway: playerGateway,
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Ouvrir l’effectif'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Ouvrir l’effectif'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Ajouter un joueur'), findsNothing);
-    expect(find.text('Inviter'), findsNothing);
+      expect(find.text('Ajouter un joueur'), findsNothing);
+      expect(find.text('Inviter'), findsNothing);
     },
   );
 }
