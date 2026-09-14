@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sport_team_manager/core/network/http_team_gateway.dart';
+import 'package:sport_team_manager/core/network/team_gateway.dart';
 
 void main() {
   test('lists the teams of the authenticated user', () async {
