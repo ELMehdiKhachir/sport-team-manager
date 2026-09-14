@@ -28,6 +28,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Future<_HomeData> _homeRequest;
   String? _pendingInviteToken;
+  String? _selectedTeamId;
 
   @override
   void initState() {
@@ -203,9 +204,13 @@ class _HomePageState extends State<HomePage> {
                         onCreated: _retry,
                       )
                     else
-                      _TeamCard(
-                        team: data.teams.first,
+                      _TeamWorkspace(
+                        teams: data.teams,
+                        selectedTeamId: _selectedTeamId,
                         playerGateway: widget.playerGateway,
+                        onTeamSelected: (teamId) {
+                          setState(() => _selectedTeamId = teamId);
+                        },
                       ),
                   ],
                 );
@@ -345,6 +350,63 @@ class _CreateClubCardState extends State<_CreateClubCard> {
   }
 }
 
+class _TeamWorkspace extends StatelessWidget {
+  const _TeamWorkspace({
+    required this.teams,
+    required this.selectedTeamId,
+    required this.playerGateway,
+    required this.onTeamSelected,
+  });
+
+  final List<TeamSummary> teams;
+  final String? selectedTeamId;
+  final PlayerGateway playerGateway;
+  final ValueChanged<String> onTeamSelected;
+
+  TeamSummary get activeTeam => teams.firstWhere(
+        (team) => team.id == selectedTeamId,
+        orElse: () => teams.first,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final team = activeTeam;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (teams.length > 1) ...[
+          DropdownButtonFormField<String>(
+            key: const Key('active-team-selector'),
+            initialValue: team.id,
+            decoration: const InputDecoration(
+              labelText: 'Équipe active',
+              prefixIcon: Icon(Icons.swap_horiz_rounded),
+              border: OutlineInputBorder(),
+            ),
+            items: teams
+                .map(
+                  (item) => DropdownMenuItem(
+                    value: item.id,
+                    child: Text(
+                      item.clubName == null
+                          ? item.name
+                          : '${item.clubName} · ${item.name}',
+                    ),
+                  ),
+                )
+                .toList(growable: false),
+            onChanged: (teamId) {
+              if (teamId != null) onTeamSelected(teamId);
+            },
+          ),
+          const SizedBox(height: 12),
+        ],
+        _TeamCard(team: team, playerGateway: playerGateway),
+      ],
+    );
+  }
+}
+
 class _TeamCard extends StatelessWidget {
   const _TeamCard({required this.team, required this.playerGateway});
 
@@ -374,6 +436,7 @@ class _TeamCard extends StatelessWidget {
                     children: [
                       Text(
                         team.name,
+                        key: const Key('active-team-name'),
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
