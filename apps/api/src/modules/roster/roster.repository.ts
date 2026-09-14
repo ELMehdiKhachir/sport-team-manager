@@ -28,6 +28,15 @@ export type CreatePlayerRecord = {
   dominantFoot?: DominantFoot;
 };
 
+export type UpdatePlayerRecord = {
+  firstName: string;
+  lastName: string;
+  primaryPosition: PlayerPosition;
+  secondaryPosition: PlayerPosition | null;
+  shirtNumber: number | null;
+  dominantFoot: DominantFoot | null;
+};
+
 export type ClaimInviteInput = {
   tokenHash: string;
   now: Date;
@@ -53,9 +62,16 @@ export abstract class RosterRepository {
     teamId: string,
     firstName: string,
     lastName: string,
+    excludePlayerId?: string,
   ): Promise<PlayerSummary | null>;
 
   abstract create(input: CreatePlayerRecord): Promise<PlayerSummary>;
+
+  abstract update(
+    teamId: string,
+    playerId: string,
+    input: UpdatePlayerRecord,
+  ): Promise<PlayerSummary | null>;
 
   abstract saveInvite(
     playerId: string,

@@ -6,6 +6,7 @@ import {
   type CreatePlayerRecord,
   type PlayerSummary,
   RosterRepository,
+  type UpdatePlayerRecord,
 } from './roster.repository.js';
 
 @Injectable()
@@ -42,10 +43,12 @@ export class PrismaRosterRepository implements RosterRepository {
     teamId: string,
     firstName: string,
     lastName: string,
+    excludePlayerId?: string,
   ): Promise<PlayerSummary | null> {
     const player = await this.prisma.playerProfile.findFirst({
       where: {
         teamId,
+        ...(excludePlayerId ? { id: { not: excludePlayerId } } : {}),
         firstName: { equals: firstName, mode: 'insensitive' },
         lastName: { equals: lastName, mode: 'insensitive' },
       },
@@ -64,6 +67,23 @@ export class PrismaRosterRepository implements RosterRepository {
         shirtNumber: input.shirtNumber,
         dominantFoot: input.dominantFoot,
       },
+    });
+    return this.toSummary(player);
+  }
+
+  async update(
+    teamId: string,
+    playerId: string,
+    input: UpdatePlayerRecord,
+  ): Promise<PlayerSummary | null> {
+    const update = await this.prisma.playerProfile.updateMany({
+      where: { id: playerId, teamId },
+      data: input,
+    });
+    if (update.count !== 1) return null;
+
+    const player = await this.prisma.playerProfile.findUniqueOrThrow({
+      where: { id: playerId },
     });
     return this.toSummary(player);
   }

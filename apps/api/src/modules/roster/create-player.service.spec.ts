@@ -10,6 +10,7 @@ import {
   type CreatePlayerRecord,
   type PlayerSummary,
   RosterRepository,
+  type UpdatePlayerRecord,
 } from './roster.repository.js';
 
 describe('CreatePlayerService', () => {
@@ -112,6 +113,10 @@ class FakeRosterRepository extends RosterRepository {
       shirtNumber: input.shirtNumber ?? null,
       dominantFoot: input.dominantFoot ?? null,
     });
+  }
+
+  update(_teamId: string, _playerId: string, input: UpdatePlayerRecord) {
+    return Promise.resolve({ ...playerFixture, ...input });
   }
 
   saveInvite() {

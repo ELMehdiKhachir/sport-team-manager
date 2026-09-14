@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../infrastructure/prisma/prisma.module.js';
 import { CreatePlayerService } from './create-player.service.js';
 import { ListPlayersService } from './list-players.service.js';
+import { UpdatePlayerService } from './update-player.service.js';
 import {
   ClaimPlayerInvitationService,
   CreatePlayerInvitationService,
@@ -19,6 +20,7 @@ import {
   providers: [
     CreatePlayerService,
     ListPlayersService,
+    UpdatePlayerService,
     CreatePlayerInvitationService,
     ClaimPlayerInvitationService,
     { provide: ROSTER_REPOSITORY, useClass: PrismaRosterRepository },

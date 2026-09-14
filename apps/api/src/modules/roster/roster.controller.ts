@@ -1,8 +1,19 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -14,6 +25,8 @@ import { ClaimPlayerInvitationDto } from './claim-player-invitation.dto.js';
 import { CreatePlayerDto } from './create-player.dto.js';
 import { CreatePlayerService } from './create-player.service.js';
 import { ListPlayersService } from './list-players.service.js';
+import { UpdatePlayerDto } from './update-player.dto.js';
+import { UpdatePlayerService } from './update-player.service.js';
 import {
   ClaimPlayerInvitationService,
   CreatePlayerInvitationService,
@@ -27,6 +40,7 @@ export class RosterController {
   constructor(
     private readonly createPlayer: CreatePlayerService,
     private readonly listPlayers: ListPlayersService,
+    private readonly updatePlayer: UpdatePlayerService,
     private readonly createInvitation: CreatePlayerInvitationService,
   ) {}
 
@@ -53,6 +67,32 @@ export class RosterController {
     return this.createPlayer.execute({
       firebaseUid: identity.firebaseUid,
       teamId,
+      firstName: body.firstName,
+      lastName: body.lastName,
+      primaryPosition: body.primaryPosition,
+      secondaryPosition: body.secondaryPosition,
+      shirtNumber: body.shirtNumber,
+      dominantFoot: body.dominantFoot,
+    });
+  }
+
+  @Patch(':playerId')
+  @ApiOperation({ summary: 'Update a player profile in the team roster' })
+  @ApiOkResponse({ description: 'Player profile updated' })
+  @ApiBadRequestResponse({ description: 'Invalid player information' })
+  @ApiConflictResponse({ description: 'A player with this name already exists' })
+  @ApiForbiddenResponse({ description: 'Roster management is not allowed' })
+  @ApiNotFoundResponse({ description: 'Player not found in this team' })
+  update(
+    @Param('teamId') teamId: string,
+    @Param('playerId') playerId: string,
+    @Body() body: UpdatePlayerDto,
+    @CurrentFirebaseIdentity() identity: FirebaseIdentity,
+  ) {
+    return this.updatePlayer.execute({
+      firebaseUid: identity.firebaseUid,
+      teamId,
+      playerId,
       firstName: body.firstName,
       lastName: body.lastName,
       primaryPosition: body.primaryPosition,
