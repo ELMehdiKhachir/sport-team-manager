@@ -73,6 +73,7 @@ export class RosterController {
       secondaryPosition: body.secondaryPosition,
       shirtNumber: body.shirtNumber,
       dominantFoot: body.dominantFoot,
+      active: body.active,
     });
   }
 

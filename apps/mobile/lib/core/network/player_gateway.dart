@@ -37,6 +37,7 @@ class PlayerSummary {
     required this.lastName,
     required this.primaryPosition,
     required this.accountAssociated,
+    this.active = true,
     this.secondaryPosition,
     this.shirtNumber,
     this.dominantFoot,
@@ -50,6 +51,7 @@ class PlayerSummary {
   final PlayerPosition? secondaryPosition;
   final int? shirtNumber;
   final DominantFoot? dominantFoot;
+  final bool active;
   final bool accountAssociated;
 
   String get displayName => '$firstName $lastName';
@@ -84,6 +86,7 @@ abstract interface class PlayerGateway {
     PlayerPosition? secondaryPosition,
     int? shirtNumber,
     DominantFoot? dominantFoot,
+    bool? active,
   });
 
   Future<PlayerInvitation> createInvitation({

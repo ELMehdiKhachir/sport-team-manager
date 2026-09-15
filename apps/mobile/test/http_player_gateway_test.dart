@@ -47,11 +47,12 @@ void main() {
         expect(request.body, contains('"secondaryPosition":null'));
         expect(request.body, contains('"shirtNumber":null'));
         expect(request.body, contains('"dominantFoot":null'));
+        expect(request.body, contains('"active":false'));
         return http.Response(
           '{"id":"player-1","teamId":"team-1","firstName":"Amine",'
           '"lastName":"Kaci","primaryPosition":"PIVOT",'
           '"secondaryPosition":null,"shirtNumber":null,"dominantFoot":null,'
-          '"accountAssociated":false}',
+          '"active":false,"accountAssociated":false}',
           200,
         );
       }),
@@ -63,10 +64,12 @@ void main() {
       firstName: 'Amine',
       lastName: 'Kaci',
       primaryPosition: PlayerPosition.pivot,
+      active: false,
     );
 
     expect(player.displayName, 'Amine Kaci');
     expect(player.shirtNumber, isNull);
+    expect(player.active, isFalse);
   });
 
   test('pre-creates a player', () async {

@@ -44,6 +44,22 @@ describe('UpdatePlayerService', () => {
     expect(repository.excludedPlayerId).toBe('player-1');
   });
 
+  it('deactivates a player without deleting the profile', async () => {
+    const repository = new FakeRosterRepository([TeamRole.OWNER_MANAGER]);
+    const service = new UpdatePlayerService(repository);
+
+    const result = await service.execute({
+      firebaseUid: 'firebase-1',
+      teamId: 'team-1',
+      playerId: 'player-1',
+      active: false,
+    });
+
+    expect(result.id).toBe('player-1');
+    expect(result.active).toBe(false);
+    expect(repository.updated?.active).toBe(false);
+  });
+
   it('refuses updates for a player-only membership', async () => {
     const service = new UpdatePlayerService(
       new FakeRosterRepository([TeamRole.PLAYER]),
@@ -99,6 +115,7 @@ const playerFixture: PlayerSummary = {
   secondaryPosition: PlayerPosition.WINGER,
   shirtNumber: 10,
   dominantFoot: DominantFoot.RIGHT,
+  active: true,
   accountAssociated: false,
 };
 

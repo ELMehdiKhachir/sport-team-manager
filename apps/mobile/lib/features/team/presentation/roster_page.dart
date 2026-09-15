@@ -65,6 +65,57 @@ class _RosterPageState extends State<RosterPage> {
     }
   }
 
+  Future<void> _setActive(PlayerSummary player) async {
+    if (player.active) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Désactiver ${player.firstName} ?'),
+          content: const Text(
+            'Le joueur restera dans l’effectif et pourra être réactivé plus tard.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Annuler'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Désactiver'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+
+    try {
+      await widget.playerGateway.updatePlayer(
+        teamId: widget.team.id,
+        playerId: player.id,
+        firstName: player.firstName,
+        lastName: player.lastName,
+        primaryPosition: player.primaryPosition,
+        secondaryPosition: player.secondaryPosition,
+        shirtNumber: player.shirtNumber,
+        dominantFoot: player.dominantFoot,
+        active: !player.active,
+      );
+      if (mounted) setState(_reload);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            player.active
+                ? 'Impossible de désactiver ce joueur.'
+                : 'Impossible de réactiver ce joueur.',
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _invite(PlayerSummary player) async {
     try {
       final invitation = await widget.playerGateway.createInvitation(
@@ -163,8 +214,12 @@ class _RosterPageState extends State<RosterPage> {
             itemBuilder: (context, index) => _PlayerCard(
               player: players[index],
               canEdit: _canManage,
-              canInvite: _canInvite && !players[index].accountAssociated,
+              canToggleActive: _canManage,
+              canInvite: _canInvite &&
+                  players[index].active &&
+                  !players[index].accountAssociated,
               onEdit: () => _editPlayer(players[index]),
+              onToggleActive: () => _setActive(players[index]),
               onInvite: () => _invite(players[index]),
             ),
           );
@@ -178,15 +233,19 @@ class _PlayerCard extends StatelessWidget {
   const _PlayerCard({
     required this.player,
     required this.canEdit,
+    required this.canToggleActive,
     required this.canInvite,
     required this.onEdit,
+    required this.onToggleActive,
     required this.onInvite,
   });
 
   final PlayerSummary player;
   final bool canEdit;
+  final bool canToggleActive;
   final bool canInvite;
   final VoidCallback onEdit;
+  final VoidCallback onToggleActive;
   final VoidCallback onInvite;
 
   @override
@@ -233,6 +292,17 @@ class _PlayerCard extends StatelessWidget {
                       Chip(
                         visualDensity: VisualDensity.compact,
                         avatar: Icon(
+                          player.active
+                              ? Icons.check_circle_outline
+                              : Icons.pause_circle_outline,
+                          size: 18,
+                        ),
+                        label: Text(player.active ? 'Actif' : 'Inactif'),
+                        side: BorderSide(color: colors.outlineVariant),
+                      ),
+                      Chip(
+                        visualDensity: VisualDensity.compact,
+                        avatar: Icon(
                           player.accountAssociated
                               ? Icons.verified_user
                               : Icons.person_outline,
@@ -250,6 +320,18 @@ class _PlayerCard extends StatelessWidget {
                           onPressed: onEdit,
                           icon: const Icon(Icons.edit_outlined),
                           label: const Text('Modifier'),
+                        ),
+                      if (canToggleActive)
+                        OutlinedButton.icon(
+                          onPressed: onToggleActive,
+                          icon: Icon(
+                            player.active
+                                ? Icons.person_off_outlined
+                                : Icons.person_add_alt,
+                          ),
+                          label: Text(
+                            player.active ? 'Désactiver' : 'Réactiver',
+                          ),
                         ),
                       if (canInvite)
                         OutlinedButton.icon(

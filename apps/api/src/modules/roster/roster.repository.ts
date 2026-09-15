@@ -15,6 +15,7 @@ export type PlayerSummary = {
   secondaryPosition: PlayerPosition | null;
   shirtNumber: number | null;
   dominantFoot: DominantFoot | null;
+  active: boolean;
   accountAssociated: boolean;
 };
 
@@ -35,6 +36,7 @@ export type UpdatePlayerRecord = {
   secondaryPosition: PlayerPosition | null;
   shirtNumber: number | null;
   dominantFoot: DominantFoot | null;
+  active: boolean;
 };
 
 export type ClaimInviteInput = {

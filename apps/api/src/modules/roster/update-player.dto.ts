@@ -27,4 +27,7 @@ export class UpdatePlayerDto {
     nullable: true,
   })
   dominantFoot?: DominantFoot | null;
+
+  @ApiPropertyOptional({ example: false })
+  active?: boolean;
 }

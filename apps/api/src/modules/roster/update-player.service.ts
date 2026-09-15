@@ -29,6 +29,7 @@ export type UpdatePlayerCommand = {
   secondaryPosition?: PlayerPosition | null;
   shirtNumber?: number | null;
   dominantFoot?: DominantFoot | null;
+  active?: boolean;
 };
 
 @Injectable()
@@ -67,6 +68,7 @@ export class UpdatePlayerService {
       command.dominantFoot === undefined
         ? player.dominantFoot
         : command.dominantFoot;
+    const active = command.active ?? player.active;
 
     if (!firstName || !lastName) {
       throw new BadRequestException('First name and last name are required.');
@@ -113,6 +115,7 @@ export class UpdatePlayerService {
         secondaryPosition,
         shirtNumber,
         dominantFoot,
+        active,
       },
     );
     if (!updated) {

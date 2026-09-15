@@ -214,6 +214,7 @@ void main() {
 
       expect(find.text('Ajouter un joueur'), findsOneWidget);
       expect(find.text('Modifier'), findsOneWidget);
+      expect(find.text('Désactiver'), findsOneWidget);
       expect(find.text('Inviter'), findsOneWidget);
 
       await tester.tap(find.text('Modifier'));
@@ -225,6 +226,16 @@ void main() {
 
       expect(playerGateway.updatedPlayerId, 'player-1');
       expect(find.text('Amine Kaci'), findsOneWidget);
+
+      await tester.tap(find.text('Désactiver'));
+      await tester.pumpAndSettle();
+      expect(find.text('Désactiver Amine ?'), findsOneWidget);
+      await tester.tap(find.text('Désactiver').last);
+      await tester.pumpAndSettle();
+
+      expect(playerGateway.players.single.active, isFalse);
+      expect(find.text('Inactif'), findsOneWidget);
+      expect(find.text('Réactiver'), findsOneWidget);
     },
   );
 
@@ -277,6 +288,8 @@ void main() {
 
       expect(find.text('Ajouter un joueur'), findsNothing);
       expect(find.text('Modifier'), findsNothing);
+      expect(find.text('Désactiver'), findsNothing);
+      expect(find.text('Réactiver'), findsNothing);
       expect(find.text('Inviter'), findsNothing);
     },
   );
@@ -403,6 +416,7 @@ class _FakePlayerGateway implements PlayerGateway {
     PlayerPosition? secondaryPosition,
     int? shirtNumber,
     DominantFoot? dominantFoot,
+    bool? active,
   }) async {
     final index = players.indexWhere(
       (player) => player.id == playerId && player.teamId == teamId,
@@ -417,6 +431,7 @@ class _FakePlayerGateway implements PlayerGateway {
       secondaryPosition: secondaryPosition,
       shirtNumber: shirtNumber,
       dominantFoot: dominantFoot,
+      active: active ?? current.active,
       accountAssociated: current.accountAssociated,
     );
     players[index] = updated;

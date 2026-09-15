@@ -176,6 +176,7 @@ export class PrismaRosterRepository implements RosterRepository {
     secondaryPosition: PlayerSummary['secondaryPosition'];
     shirtNumber: number | null;
     dominantFoot: PlayerSummary['dominantFoot'];
+    active: boolean;
   }): PlayerSummary {
     return {
       id: player.id,
@@ -186,6 +187,7 @@ export class PrismaRosterRepository implements RosterRepository {
       secondaryPosition: player.secondaryPosition,
       shirtNumber: player.shirtNumber,
       dominantFoot: player.dominantFoot,
+      active: player.active,
       accountAssociated: player.userId !== null,
     };
   }

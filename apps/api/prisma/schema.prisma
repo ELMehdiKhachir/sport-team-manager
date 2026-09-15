@@ -83,6 +83,7 @@ model PlayerProfile {
   secondaryPosition PlayerPosition?
   shirtNumber       Int?
   dominantFoot      DominantFoot?
+  active           Boolean         @default(true)
   inviteTokenHash   String?         @unique
   inviteExpiresAt   DateTime?
   team              Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)

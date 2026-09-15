@@ -75,6 +75,7 @@ const playerFixture: PlayerSummary = {
   secondaryPosition: null,
   shirtNumber: 10,
   dominantFoot: DominantFoot.RIGHT,
+  active: true,
   accountAssociated: false,
 };
 

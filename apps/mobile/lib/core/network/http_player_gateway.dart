@@ -65,6 +65,7 @@ class HttpPlayerGateway implements PlayerGateway {
     PlayerPosition? secondaryPosition,
     int? shirtNumber,
     DominantFoot? dominantFoot,
+    bool? active,
   }) async {
     final response = await _client.patch(
       _baseUri.resolve('/teams/$teamId/players/$playerId'),
@@ -76,6 +77,7 @@ class HttpPlayerGateway implements PlayerGateway {
         'secondaryPosition': secondaryPosition?.apiValue,
         'shirtNumber': shirtNumber,
         'dominantFoot': dominantFoot?.apiValue,
+        if (active != null) 'active': active,
       }),
     );
     return _fromPayload(_decode(response));
@@ -156,6 +158,7 @@ class HttpPlayerGateway implements PlayerGateway {
       dominantFoot: value['dominantFoot'] is String
           ? DominantFoot.fromApi(value['dominantFoot'] as String)
           : null,
+      active: value['active'] as bool? ?? true,
       accountAssociated: value['accountAssociated'] as bool,
     );
   }
