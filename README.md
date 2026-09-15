@@ -1,6 +1,6 @@
 # Sport Team Manager
 
-Mobile-first assistant for amateur futsal coaches. The technical MVP foundation, Epics 01 and 02, and Slice 00.1 are functionally validated. Slice 00.2 is implemented and awaiting Product Owner validation. Club and team creation, player lifecycle, cumulative roles, active-team switching, business permissions, secure Coach/Staff invitations, and the five-section mobile navigation work end to end.
+Mobile-first assistant for amateur futsal coaches. The technical MVP foundation, Epics 01 and 02, and Slices 00.1 and 00.2 are functionally validated. Club and team creation, player lifecycle, cumulative roles, active-team switching, business permissions, secure Coach/Staff invitations, and the five-section mobile navigation work end to end.
 
 ## Repository layout
 
@@ -66,9 +66,9 @@ No state-management, router or model-generation library is selected yet. The cur
 - Slice 02.2 — deactivate/reactivate players: functionally validated and complete. Inactive players remain visible without losing profile data or account association; managers and coaches can change status, while player-only memberships cannot access the action.
 - Slice 02.3 — invite Coach/Staff members: functionally validated and complete. Only managers can issue secure, single-use invitations that expire after seven days. Claiming an invitation adds the selected role without removing roles already held by the member.
 - Slice 00.1 — main mobile navigation: functionally validated and complete. The authenticated shell exposes Home, Calendar, Team, Stats and Profile while preserving Home state between tab changes. Profile displays the connected account and supports sign-out.
-- Slice 00.2 — Team workspace: implemented, technically validated and deployed; functional validation is pending. Team creation, active-team switching, roster access and Coach/Staff invitations now live under Team. Invitation links open Team directly, while Home exposes an honest operational-dashboard empty state without fabricated match or training data.
+- Slice 00.2 — Team workspace: functionally validated and complete. Team creation, active-team switching, roster access and Coach/Staff invitations now live under Team. Invitation links open Team directly, while Home exposes an honest operational-dashboard empty state without fabricated match or training data.
 - Production startup runs `prisma migrate deploy` before NestJS, so committed migrations are applied on Render startup.
-- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests, Web build and Android APK build are green. GitHub Pages contains the Slice 00.2 version awaiting functional validation.
+- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests, Web build and Android APK build are green. GitHub Pages contains the functionally validated Slice 00.2 version.
 - Epic 01 — foundations (account, club, team and roles): complete.
 - Epic 02 — roster, player profiles and invitations: functionally validated and complete.
 
