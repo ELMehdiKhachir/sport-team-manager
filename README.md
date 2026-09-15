@@ -63,8 +63,9 @@ No state-management, router or model-generation library is selected yet. The cur
 - Slice 01.4 — active-team switching: functionally validated and complete. A multi-team user can select an active team, and the displayed club, roles and roster access follow that choice.
 - Slice 01.5 — business-permission matrix: functionally validated and complete. NestJS computes cumulative team permissions, protects roster mutations and invitations, and Flutter uses API permissions to show management actions. Manager actions are visible only on authorized teams; Player-only teams retain read access without management actions.
 - Slice 02.1 — edit player information: functionally validated and complete. Managers and coaches can update the pre-filled player form and clear optional sports fields; player-only memberships cannot access the action. NestJS enforces MANAGE_ROSTER and team ownership.
+- Slice 02.2 — deactivate/reactivate players: functionally validated and complete. Inactive players remain visible without losing profile data or account association; managers and coaches can change status, while player-only memberships cannot access the action.
 - Production startup runs `prisma migrate deploy` before NestJS, so committed migrations are applied on Render startup.
-- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests and Web build are green. GitHub Pages contains the validated player-editing version.
+- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests and Web build are green. GitHub Pages contains the validated player-status version.
 - Epic 01 — foundations (account, club, team and roles): complete.
 
 ## Validation
