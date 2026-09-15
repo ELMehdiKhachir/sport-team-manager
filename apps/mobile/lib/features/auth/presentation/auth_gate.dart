@@ -4,7 +4,7 @@ import 'package:sport_team_manager/core/network/identity_gateway.dart';
 import 'package:sport_team_manager/core/network/player_gateway.dart';
 import 'package:sport_team_manager/core/network/team_gateway.dart';
 import 'package:sport_team_manager/features/auth/presentation/auth_page.dart';
-import 'package:sport_team_manager/features/home/presentation/home_page.dart';
+import 'package:sport_team_manager/features/shell/presentation/app_shell.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({
@@ -34,7 +34,7 @@ class AuthGate extends StatelessWidget {
         final user = snapshot.data;
         if (user == null) return AuthPage(authGateway: authGateway);
 
-        return HomePage(
+        return AppShell(
           user: user,
           identityGateway: identityGateway,
           teamGateway: teamGateway,

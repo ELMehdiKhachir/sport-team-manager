@@ -69,6 +69,54 @@ void main() {
     expect(find.byTooltip('Se déconnecter'), findsOneWidget);
   });
 
+  testWidgets('navigates between the five main sections', (tester) async {
+    final authGateway = _FakeAuthGateway(
+      user: const AuthUser(
+        id: 'user-1',
+        email: 'coach@example.com',
+        displayName: 'Mehdi',
+      ),
+    );
+    await tester.pumpWidget(
+      SportTeamManagerApp(
+        authGateway: authGateway,
+        identityGateway: _FakeIdentityGateway(),
+        teamGateway: _FakeTeamGateway(),
+        playerGateway: _FakePlayerGateway(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.text('Accueil'), findsOneWidget);
+    expect(find.text('Calendrier'), findsOneWidget);
+    expect(find.text('Équipe'), findsOneWidget);
+    expect(find.text('Stats'), findsOneWidget);
+    expect(find.text('Profil'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('nav-calendar')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('calendar-page')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('nav-team')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('team-page')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('nav-stats')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('stats-page')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('nav-profile')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('profile-page')), findsOneWidget);
+    expect(find.text('Mehdi'), findsOneWidget);
+    expect(find.text('coach@example.com'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('profile-sign-out')));
+    await tester.pumpAndSettle();
+    expect(authGateway.signedOut, isTrue);
+  });
+
   testWidgets('creates and then displays the first team', (tester) async {
     final teamGateway = _FakeTeamGateway();
     await tester.pumpWidget(
@@ -163,6 +211,16 @@ void main() {
       'Seniors 2',
     );
     expect(find.text('Joueur'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('nav-profile')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('nav-home')));
+    await tester.pumpAndSettle();
+
+    expect(
+      tester.widget<Text>(find.byKey(const Key('active-team-name'))).data,
+      'Seniors 2',
+    );
   });
 
   testWidgets(
@@ -303,6 +361,7 @@ class _FakeAuthGateway implements AuthGateway {
   _FakeAuthGateway({this.user});
 
   final AuthUser? user;
+  bool signedOut = false;
 
   @override
   Stream<AuthUser?> get userChanges => Stream.value(user);
@@ -325,7 +384,9 @@ class _FakeAuthGateway implements AuthGateway {
       {required String email, required String password}) async {}
 
   @override
-  Future<void> signOut() async {}
+  Future<void> signOut() async {
+    signedOut = true;
+  }
 }
 
 class _FakeIdentityGateway implements IdentityGateway {
