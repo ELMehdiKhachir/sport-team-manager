@@ -61,6 +61,40 @@ class HttpTeamGateway implements TeamGateway {
     );
   }
 
+  @override
+  Future<TeamMemberInvitation> createMemberInvitation({
+    required String teamId,
+    required TeamInvitationRole role,
+  }) async {
+    final response = await _client.post(
+      _baseUri.resolve('/teams/$teamId/member-invitations'),
+      headers: await _headers(includeJson: true),
+      body: jsonEncode({'role': role.apiValue}),
+    );
+    final payload = _decode(response);
+    if (payload is! Map<String, dynamic> ||
+        payload['token'] is! String ||
+        payload['role'] is! String ||
+        payload['expiresAt'] is! String) {
+      throw const TeamRequestException('Réponse inattendue de l’API.');
+    }
+    return TeamMemberInvitation(
+      token: payload['token'] as String,
+      role: TeamInvitationRole.fromApi(payload['role'] as String),
+      expiresAt: DateTime.parse(payload['expiresAt'] as String),
+    );
+  }
+
+  @override
+  Future<TeamSummary> claimMemberInvitation(String token) async {
+    final response = await _client.post(
+      _baseUri.resolve('/team-member-invitations/claim'),
+      headers: await _headers(includeJson: true),
+      body: jsonEncode({'token': token}),
+    );
+    return _teamFromListPayload(_decode(response));
+  }
+
   Future<Map<String, String>> _headers({bool includeJson = false}) async {
     final token = await _idTokenProvider();
     if (token == null || token.isEmpty) {

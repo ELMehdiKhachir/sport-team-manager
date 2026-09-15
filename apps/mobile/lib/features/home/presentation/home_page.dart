@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sport_team_manager/core/auth/auth_gateway.dart';
 import 'package:sport_team_manager/core/network/identity_gateway.dart';
 import 'package:sport_team_manager/core/network/player_gateway.dart';
@@ -28,6 +29,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Future<_HomeData> _homeRequest;
   String? _pendingInviteToken;
+  String? _pendingTeamInviteToken;
   String? _selectedTeamId;
 
   @override
@@ -35,6 +37,11 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _pendingInviteToken = Uri.base.queryParameters['invite']?.trim();
     if (_pendingInviteToken?.isEmpty == true) _pendingInviteToken = null;
+    _pendingTeamInviteToken =
+        Uri.base.queryParameters['teamInvite']?.trim();
+    if (_pendingTeamInviteToken?.isEmpty == true) {
+      _pendingTeamInviteToken = null;
+    }
     _reload();
   }
 
@@ -66,6 +73,36 @@ class _HomePageState extends State<HomePage> {
         SnackBar(
           content: Text(
             'Profil ${player.displayName} associé. Tu as rejoint l’équipe.',
+          ),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Invitation invalide, expirée ou déjà utilisée. Demande un nouveau lien au manager.',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _claimTeamInvite() async {
+    final token = _pendingTeamInviteToken;
+    if (token == null) return;
+    try {
+      final team = await widget.teamGateway.claimMemberInvitation(token);
+      if (!mounted) return;
+      setState(() {
+        _pendingTeamInviteToken = null;
+        _selectedTeamId = team.id;
+        _reload();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Tu as rejoint ${team.name} avec le rôle ${_rolesLabel(team.roles)}.',
           ),
         ),
       );
@@ -161,7 +198,8 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    if (_pendingInviteToken != null) ...[
+                    if (_pendingInviteToken != null ||
+                        _pendingTeamInviteToken != null) ...[
                       const SizedBox(height: 12),
                       Card(
                         child: Padding(
@@ -176,19 +214,25 @@ class _HomePageState extends State<HomePage> {
                               ),
                               const SizedBox(height: 12),
                               Text(
-                                'Invitation reçue',
+                                _pendingTeamInviteToken != null
+                                    ? 'Invitation dans une équipe'
+                                    : 'Invitation reçue',
                                 style: Theme.of(context)
                                     .textTheme
                                     .titleLarge
                                     ?.copyWith(fontWeight: FontWeight.w700),
                               ),
                               const SizedBox(height: 6),
-                              const Text(
-                                'Ce lien permet de rattacher ton compte au profil joueur préparé par ton équipe.',
+                              Text(
+                                _pendingTeamInviteToken != null
+                                    ? 'Ce lien permet de rejoindre l’équipe comme coach ou membre du staff.'
+                                    : 'Ce lien permet de rattacher ton compte au profil joueur préparé par ton équipe.',
                               ),
                               const SizedBox(height: 16),
                               FilledButton.icon(
-                                onPressed: _claimInvite,
+                                onPressed: _pendingTeamInviteToken != null
+                                    ? _claimTeamInvite
+                                    : _claimInvite,
                                 icon: const Icon(Icons.group_add),
                                 label: const Text('Rejoindre mon équipe'),
                               ),
@@ -207,6 +251,7 @@ class _HomePageState extends State<HomePage> {
                       _TeamWorkspace(
                         teams: data.teams,
                         selectedTeamId: _selectedTeamId,
+                        teamGateway: widget.teamGateway,
                         playerGateway: widget.playerGateway,
                         onTeamSelected: (teamId) {
                           setState(() => _selectedTeamId = teamId);
@@ -354,12 +399,14 @@ class _TeamWorkspace extends StatelessWidget {
   const _TeamWorkspace({
     required this.teams,
     required this.selectedTeamId,
+    required this.teamGateway,
     required this.playerGateway,
     required this.onTeamSelected,
   });
 
   final List<TeamSummary> teams;
   final String? selectedTeamId;
+  final TeamGateway teamGateway;
   final PlayerGateway playerGateway;
   final ValueChanged<String> onTeamSelected;
 
@@ -401,17 +448,109 @@ class _TeamWorkspace extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
-        _TeamCard(team: team, playerGateway: playerGateway),
+        _TeamCard(
+          team: team,
+          teamGateway: teamGateway,
+          playerGateway: playerGateway,
+        ),
       ],
     );
   }
 }
 
 class _TeamCard extends StatelessWidget {
-  const _TeamCard({required this.team, required this.playerGateway});
+  const _TeamCard({
+    required this.team,
+    required this.teamGateway,
+    required this.playerGateway,
+  });
 
   final TeamSummary team;
+  final TeamGateway teamGateway;
   final PlayerGateway playerGateway;
+
+  Future<void> _inviteMember(BuildContext context) async {
+    final role = await showModalBottomSheet<TeamInvitationRole>(
+      context: context,
+      useSafeArea: true,
+      builder: (context) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Inviter dans ${team.name}',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const SizedBox(height: 6),
+            const Text('Choisis le rôle attribué après acceptation du lien.'),
+            const SizedBox(height: 16),
+            for (final role in TeamInvitationRole.values)
+              ListTile(
+                leading: Icon(
+                  role == TeamInvitationRole.coach
+                      ? Icons.sports
+                      : Icons.support_agent,
+                ),
+                title: Text(role.label),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).pop(role),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (role == null || !context.mounted) return;
+
+    try {
+      final invitation = await teamGateway.createMemberInvitation(
+        teamId: team.id,
+        role: role,
+      );
+      if (!context.mounted) return;
+      final parameters = Map<String, String>.from(Uri.base.queryParameters)
+        ..remove('invite')
+        ..['teamInvite'] = invitation.token;
+      final link = Uri.base.replace(queryParameters: parameters).toString();
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text('Lien ${role.label} prêt'),
+          content: SelectableText(link),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Fermer'),
+            ),
+            FilledButton.icon(
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: link));
+                if (!dialogContext.mounted) return;
+                Navigator.of(dialogContext).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Lien copié. Tu peux le partager sur WhatsApp.',
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.copy),
+              label: const Text('Copier le lien'),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Impossible de créer l’invitation.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -466,22 +605,31 @@ class _TeamCard extends StatelessWidget {
               icon: const Icon(Icons.groups_2_outlined),
               label: const Text('Ouvrir l’effectif'),
             ),
+            if (team.allows(TeamPermission.manageTeamMembers)) ...[
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                onPressed: () => _inviteMember(context),
+                icon: const Icon(Icons.person_add_alt),
+                label: const Text('Inviter un coach ou un staff'),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  String _rolesLabel(List<String> roles) => roles
-      .map((role) => switch (role) {
-            'OWNER_MANAGER' => 'Manager',
-            'STAFF_ASSISTANT' => 'Staff',
-            'COACH' => 'Coach',
-            'PLAYER' => 'Joueur',
-            _ => role,
-          })
-      .join(' · ');
 }
+
+String _rolesLabel(List<String> roles) => roles
+    .map((role) => switch (role) {
+          'OWNER_MANAGER' => 'Manager',
+          'STAFF_ASSISTANT' => 'Staff',
+          'COACH' => 'Coach',
+          'PLAYER' => 'Joueur',
+          _ => role,
+        })
+    .join(' · ');
 
 class _HomeData {
   const _HomeData({required this.identity, required this.teams});

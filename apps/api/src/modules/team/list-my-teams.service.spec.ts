@@ -15,7 +15,12 @@ describe('ListMyTeamsService', () => {
         name: 'Seniors 1',
         club: { id: 'club-1', name: 'Lyon Futsal' },
         roles: ['OWNER_MANAGER'],
-        permissions: ['VIEW_ROSTER', 'MANAGE_ROSTER', 'INVITE_PLAYER'],
+        permissions: [
+          'VIEW_ROSTER',
+          'MANAGE_ROSTER',
+          'INVITE_PLAYER',
+          'MANAGE_TEAM_MEMBERS',
+        ],
       },
     ]);
   });

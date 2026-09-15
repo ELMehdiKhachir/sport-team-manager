@@ -11,6 +11,7 @@ describe('team permission matrix', () => {
 
     expect(permissions).toContain(TeamPermission.MANAGE_ROSTER);
     expect(permissions).toContain(TeamPermission.INVITE_PLAYER);
+    expect(permissions).toContain(TeamPermission.MANAGE_TEAM_MEMBERS);
     expect(permissions).not.toContain(TeamPermission.MAKE_SPORTING_DECISIONS);
     expect(permissions).not.toContain(TeamPermission.VIEW_MANAGEMENT_STATS);
   });
@@ -23,6 +24,7 @@ describe('team permission matrix', () => {
     expect(permissions).toContain(TeamPermission.MAKE_SPORTING_DECISIONS);
     expect(permissions).toContain(TeamPermission.RECORD_LIVE_EVENTS);
     expect(permissions).toContain(TeamPermission.VIEW_MANAGEMENT_STATS);
+    expect(permissions).not.toContain(TeamPermission.MANAGE_TEAM_MEMBERS);
   });
 
   it('limits staff to authorized assistance capabilities', () => {
@@ -57,9 +59,7 @@ describe('team permission matrix', () => {
   });
 
   it('denies missing memberships and ignores unknown roles', () => {
-    expect(
-      hasTeamPermission(null, TeamPermission.VIEW_ROSTER),
-    ).toBe(false);
+    expect(hasTeamPermission(null, TeamPermission.VIEW_ROSTER)).toBe(false);
     expect(permissionsForTeamRoles(['UNKNOWN_ROLE'])).toEqual([]);
   });
 });

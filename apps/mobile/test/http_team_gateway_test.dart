@@ -62,6 +62,61 @@ void main() {
     expect(team.clubName, 'Mon Club');
   });
 
+  test('creates a coach invitation', () async {
+    final gateway = HttpTeamGateway(
+      baseUrl: 'https://api.example.com',
+      idTokenProvider: () async => 'valid-token',
+      client: MockClient((request) async {
+        expect(
+          request.url.toString(),
+          'https://api.example.com/teams/team-1/member-invitations',
+        );
+        expect(request.method, 'POST');
+        expect(request.body, '{"role":"COACH"}');
+        return http.Response(
+          '{"token":"opaque-team-token","role":"COACH",'
+          '"expiresAt":"2026-09-22T12:00:00.000Z"}',
+          201,
+        );
+      }),
+    );
+
+    final invitation = await gateway.createMemberInvitation(
+      teamId: 'team-1',
+      role: TeamInvitationRole.coach,
+    );
+
+    expect(invitation.token, 'opaque-team-token');
+    expect(invitation.role, TeamInvitationRole.coach);
+  });
+
+  test('claims a team member invitation', () async {
+    final gateway = HttpTeamGateway(
+      baseUrl: 'https://api.example.com',
+      idTokenProvider: () async => 'valid-token',
+      client: MockClient((request) async {
+        expect(
+          request.url.toString(),
+          'https://api.example.com/team-member-invitations/claim',
+        );
+        expect(request.method, 'POST');
+        expect(request.body, '{"token":"opaque-team-token"}');
+        return http.Response(
+          '{"id":"team-1","name":"Seniors 1",'
+          '"club":{"id":"club-1","name":"Mon Club"},'
+          '"roles":["COACH"],'
+          '"permissions":["VIEW_ROSTER","MANAGE_ROSTER"]}',
+          200,
+        );
+      }),
+    );
+
+    final team = await gateway.claimMemberInvitation('opaque-team-token');
+
+    expect(team.name, 'Seniors 1');
+    expect(team.roles, ['COACH']);
+  });
+
   test('rejects an unsuccessful response', () async {
     final gateway = HttpTeamGateway(
       baseUrl: 'https://api.example.com',

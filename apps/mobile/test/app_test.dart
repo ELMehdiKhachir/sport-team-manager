@@ -116,6 +116,7 @@ void main() {
             TeamPermission.viewRoster,
             TeamPermission.manageRoster,
             TeamPermission.invitePlayer,
+            TeamPermission.manageTeamMembers,
           ],
         ),
         TeamSummary(
@@ -200,6 +201,7 @@ void main() {
                   TeamPermission.viewRoster,
                   TeamPermission.manageRoster,
                   TeamPermission.invitePlayer,
+                  TeamPermission.manageTeamMembers,
                 ],
               ),
             ],
@@ -209,6 +211,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
+      expect(find.text('Inviter un coach ou un staff'), findsOneWidget);
       await tester.tap(find.text('Ouvrir l’effectif'));
       await tester.pumpAndSettle();
 
@@ -291,6 +294,7 @@ void main() {
       expect(find.text('Désactiver'), findsNothing);
       expect(find.text('Réactiver'), findsNothing);
       expect(find.text('Inviter'), findsNothing);
+      expect(find.text('Inviter un coach ou un staff'), findsNothing);
     },
   );
 }
@@ -359,6 +363,7 @@ class _FakeTeamGateway implements TeamGateway {
         TeamPermission.viewRoster,
         TeamPermission.manageRoster,
         TeamPermission.invitePlayer,
+        TeamPermission.manageTeamMembers,
       ],
     );
     teams.add(team);
@@ -367,6 +372,29 @@ class _FakeTeamGateway implements TeamGateway {
 
   @override
   Future<List<TeamSummary>> getMyTeams() async => List.of(teams);
+
+  @override
+  Future<TeamMemberInvitation> createMemberInvitation({
+    required String teamId,
+    required TeamInvitationRole role,
+  }) async =>
+      TeamMemberInvitation(
+        token: 'fake-team-invitation-token-that-is-long-enough',
+        role: role,
+        expiresAt: DateTime(2026, 9, 22),
+      );
+
+  @override
+  Future<TeamSummary> claimMemberInvitation(String token) async =>
+      const TeamSummary(
+        id: 'team-joined',
+        name: 'Seniors 2',
+        roles: ['COACH'],
+        permissions: [
+          TeamPermission.viewRoster,
+          TeamPermission.manageRoster,
+        ],
+      );
 }
 
 class _FakePlayerGateway implements PlayerGateway {

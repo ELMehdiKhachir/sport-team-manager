@@ -30,6 +30,7 @@ describe('CreateClubWithTeamService', () => {
       'VIEW_ROSTER',
       'MANAGE_ROSTER',
       'INVITE_PLAYER',
+      'MANAGE_TEAM_MEMBERS',
     ]);
   });
 
