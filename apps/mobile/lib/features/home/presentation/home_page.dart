@@ -37,8 +37,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _pendingInviteToken = Uri.base.queryParameters['invite']?.trim();
     if (_pendingInviteToken?.isEmpty == true) _pendingInviteToken = null;
-    _pendingTeamInviteToken =
-        Uri.base.queryParameters['teamInvite']?.trim();
+    _pendingTeamInviteToken = Uri.base.queryParameters['teamInvite']?.trim();
     if (_pendingTeamInviteToken?.isEmpty == true) {
       _pendingTeamInviteToken = null;
     }
@@ -618,7 +617,6 @@ class _TeamCard extends StatelessWidget {
       ),
     );
   }
-
 }
 
 String _rolesLabel(List<String> roles) => roles
