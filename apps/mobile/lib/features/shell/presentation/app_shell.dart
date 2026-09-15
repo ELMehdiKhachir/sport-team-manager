@@ -4,6 +4,7 @@ import 'package:sport_team_manager/core/network/identity_gateway.dart';
 import 'package:sport_team_manager/core/network/player_gateway.dart';
 import 'package:sport_team_manager/core/network/team_gateway.dart';
 import 'package:sport_team_manager/features/home/presentation/home_page.dart';
+import 'package:sport_team_manager/features/team/presentation/team_page.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({
@@ -26,7 +27,17 @@ class AppShell extends StatefulWidget {
 }
 
 class _AppShellState extends State<AppShell> {
-  var _selectedIndex = 0;
+  late int _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    final parameters = Uri.base.queryParameters;
+    _selectedIndex = parameters.containsKey('invite') ||
+            parameters.containsKey('teamInvite')
+        ? 2
+        : 0;
+  }
 
   void _selectTab(int index) {
     setState(() => _selectedIndex = index);
@@ -41,9 +52,6 @@ class _AppShellState extends State<AppShell> {
           HomePage(
             user: widget.user,
             identityGateway: widget.identityGateway,
-            teamGateway: widget.teamGateway,
-            playerGateway: widget.playerGateway,
-            onSignOut: widget.onSignOut,
           ),
           const _ComingSoonPage(
             key: Key('calendar-page'),
@@ -52,14 +60,9 @@ class _AppShellState extends State<AppShell> {
             message:
                 'Les matchs et entraînements seront disponibles dans une prochaine étape.',
           ),
-          _ComingSoonPage(
-            key: const Key('team-page'),
-            title: 'Équipe',
-            icon: Icons.groups_2_outlined,
-            message:
-                'L’effectif, le staff et le club seront regroupés dans cet espace.',
-            actionLabel: 'Ouvrir l’accueil',
-            onAction: () => _selectTab(0),
+          TeamPage(
+            teamGateway: widget.teamGateway,
+            playerGateway: widget.playerGateway,
           ),
           const _ComingSoonPage(
             key: Key('stats-page'),

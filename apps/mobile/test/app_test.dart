@@ -64,9 +64,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Bonjour Mehdi !'), findsOneWidget);
-    expect(find.text('Connexion sécurisée validée'), findsOneWidget);
-    expect(find.text('Crée ton espace équipe'), findsOneWidget);
-    expect(find.byTooltip('Se déconnecter'), findsOneWidget);
+    expect(find.text('Aucune action à traiter'), findsOneWidget);
+    expect(find.text('Prochaines échéances'), findsOneWidget);
+    expect(find.text('Crée ton espace équipe'), findsNothing);
+    expect(find.text('Ouvrir l’effectif'), findsNothing);
   });
 
   testWidgets('navigates between the five main sections', (tester) async {
@@ -101,6 +102,7 @@ void main() {
     await tester.tap(find.byKey(const Key('nav-team')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('team-page')), findsOneWidget);
+    expect(find.text('Crée ton espace équipe'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('nav-stats')));
     await tester.pumpAndSettle();
@@ -133,6 +135,9 @@ void main() {
         playerGateway: _FakePlayerGateway(),
       ),
     );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('nav-team')));
     await tester.pumpAndSettle();
 
     await tester.enterText(find.bySemanticsLabel('Nom du club'), 'Mon Club');
@@ -196,6 +201,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const Key('nav-team')));
+    await tester.pumpAndSettle();
+
     expect(
       tester.widget<Text>(find.byKey(const Key('active-team-name'))).data,
       'Seniors 1',
@@ -215,6 +223,10 @@ void main() {
     await tester.tap(find.byKey(const Key('nav-profile')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('nav-home')));
+    await tester.pumpAndSettle();
+    expect(find.text('Aucune action à traiter'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('nav-team')));
     await tester.pumpAndSettle();
 
     expect(
@@ -267,6 +279,9 @@ void main() {
           playerGateway: playerGateway,
         ),
       );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('nav-team')));
       await tester.pumpAndSettle();
 
       expect(find.text('Inviter un coach ou un staff'), findsOneWidget);
@@ -342,6 +357,9 @@ void main() {
           playerGateway: playerGateway,
         ),
       );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byKey(const Key('nav-team')));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Ouvrir l’effectif'));
