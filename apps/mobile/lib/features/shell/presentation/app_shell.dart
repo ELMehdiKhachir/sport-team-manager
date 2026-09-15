@@ -28,6 +28,8 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   late int _selectedIndex;
+  String? _selectedTeamId;
+  int _teamsRevision = 0;
 
   @override
   void initState() {
@@ -43,6 +45,17 @@ class _AppShellState extends State<AppShell> {
     setState(() => _selectedIndex = index);
   }
 
+  void _selectTeam(String teamId) {
+    setState(() => _selectedTeamId = teamId);
+  }
+
+  void _teamsChanged(String? activeTeamId) {
+    setState(() {
+      if (activeTeamId != null) _selectedTeamId = activeTeamId;
+      _teamsRevision += 1;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,6 +65,10 @@ class _AppShellState extends State<AppShell> {
           HomePage(
             user: widget.user,
             identityGateway: widget.identityGateway,
+            teamGateway: widget.teamGateway,
+            selectedTeamId: _selectedTeamId,
+            teamsRevision: _teamsRevision,
+            onOpenTeam: () => _selectTab(2),
           ),
           const _ComingSoonPage(
             key: Key('calendar-page'),
@@ -63,6 +80,9 @@ class _AppShellState extends State<AppShell> {
           TeamPage(
             teamGateway: widget.teamGateway,
             playerGateway: widget.playerGateway,
+            selectedTeamId: _selectedTeamId,
+            onTeamSelected: _selectTeam,
+            onTeamsChanged: _teamsChanged,
           ),
           const _ComingSoonPage(
             key: Key('stats-page'),

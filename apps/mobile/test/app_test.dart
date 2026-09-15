@@ -57,18 +57,64 @@ void main() {
           ),
         ),
         identityGateway: _FakeIdentityGateway(),
-        teamGateway: _FakeTeamGateway(),
+        teamGateway: _FakeTeamGateway(
+          initialTeams: const [
+            TeamSummary(
+              id: 'team-1',
+              name: 'Seniors 1',
+              clubName: 'Club A',
+              roles: ['OWNER_MANAGER'],
+              permissions: [
+                TeamPermission.viewRoster,
+                TeamPermission.manageRoster,
+                TeamPermission.manageTeamMembers,
+              ],
+            ),
+          ],
+        ),
         playerGateway: _FakePlayerGateway(),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(find.text('Bonjour Mehdi !'), findsOneWidget);
+    expect(find.byKey(const Key('home-team-context')), findsOneWidget);
+    expect(find.text('Seniors 1'), findsOneWidget);
+    expect(find.text('Club A'), findsOneWidget);
+    expect(find.text('Manager'), findsOneWidget);
     expect(find.text('Aucune action à traiter'), findsOneWidget);
     expect(find.text('Prochaines échéances'), findsOneWidget);
     expect(find.text('Crée ton espace équipe'), findsNothing);
     expect(find.text('Ouvrir l’effectif'), findsNothing);
   });
+
+  testWidgets(
+    'opens Team from the home priority action without a team',
+    (tester) async {
+      await tester.pumpWidget(
+        SportTeamManagerApp(
+          authGateway: _FakeAuthGateway(
+            user: const AuthUser(
+              id: 'user-1',
+              email: 'coach@example.com',
+              displayName: 'Mehdi',
+            ),
+          ),
+          identityGateway: _FakeIdentityGateway(),
+          teamGateway: _FakeTeamGateway(),
+          playerGateway: _FakePlayerGateway(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Crée ton espace équipe'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('home-create-team')));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('team-page')), findsOneWidget);
+      expect(find.text('Créer mon équipe'), findsOneWidget);
+    },
+  );
 
   testWidgets('navigates between the five main sections', (tester) async {
     final authGateway = _FakeAuthGateway(
@@ -225,6 +271,11 @@ void main() {
     await tester.tap(find.byKey(const Key('nav-home')));
     await tester.pumpAndSettle();
     expect(find.text('Aucune action à traiter'), findsOneWidget);
+    expect(
+      tester.widget<Text>(find.byKey(const Key('home-active-team-name'))).data,
+      'Seniors 2',
+    );
+    expect(find.text('Joueur'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('nav-team')));
     await tester.pumpAndSettle();

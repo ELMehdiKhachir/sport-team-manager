@@ -8,11 +8,17 @@ class TeamPage extends StatefulWidget {
   const TeamPage({
     required this.teamGateway,
     required this.playerGateway,
+    required this.selectedTeamId,
+    required this.onTeamSelected,
+    required this.onTeamsChanged,
     super.key,
   });
 
   final TeamGateway teamGateway;
   final PlayerGateway playerGateway;
+  final String? selectedTeamId;
+  final ValueChanged<String> onTeamSelected;
+  final ValueChanged<String?> onTeamsChanged;
 
   @override
   State<TeamPage> createState() => _TeamPageState();
@@ -22,7 +28,6 @@ class _TeamPageState extends State<TeamPage> {
   late Future<List<TeamSummary>> _teamsRequest;
   String? _pendingInviteToken;
   String? _pendingTeamInviteToken;
-  String? _selectedTeamId;
 
   @override
   void initState() {
@@ -54,6 +59,7 @@ class _TeamPageState extends State<TeamPage> {
         _pendingInviteToken = null;
         _reload();
       });
+      widget.onTeamsChanged(player.teamId);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -81,9 +87,9 @@ class _TeamPageState extends State<TeamPage> {
       if (!mounted) return;
       setState(() {
         _pendingTeamInviteToken = null;
-        _selectedTeamId = team.id;
         _reload();
       });
+      widget.onTeamsChanged(team.id);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -206,17 +212,18 @@ class _TeamPageState extends State<TeamPage> {
                     if ((snapshot.data ?? const <TeamSummary>[]).isEmpty)
                       _CreateClubCard(
                         teamGateway: widget.teamGateway,
-                        onCreated: _retry,
+                        onCreated: (team) {
+                          _retry();
+                          widget.onTeamsChanged(team.id);
+                        },
                       )
                     else
                       _TeamWorkspace(
                         teams: snapshot.data!,
-                        selectedTeamId: _selectedTeamId,
+                        selectedTeamId: widget.selectedTeamId,
                         teamGateway: widget.teamGateway,
                         playerGateway: widget.playerGateway,
-                        onTeamSelected: (teamId) {
-                          setState(() => _selectedTeamId = teamId);
-                        },
+                        onTeamSelected: widget.onTeamSelected,
                       ),
                   ],
                 );
@@ -236,7 +243,7 @@ class _CreateClubCard extends StatefulWidget {
   });
 
   final TeamGateway teamGateway;
-  final VoidCallback onCreated;
+  final ValueChanged<TeamSummary> onCreated;
 
   @override
   State<_CreateClubCard> createState() => _CreateClubCardState();
@@ -264,11 +271,11 @@ class _CreateClubCardState extends State<_CreateClubCard> {
     });
 
     try {
-      await widget.teamGateway.createClubWithTeam(
+      final team = await widget.teamGateway.createClubWithTeam(
         clubName: _clubController.text,
         teamName: _teamController.text,
       );
-      widget.onCreated();
+      widget.onCreated(team);
     } catch (_) {
       if (!mounted) return;
       setState(() {
