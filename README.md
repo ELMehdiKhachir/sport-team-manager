@@ -68,6 +68,7 @@ No state-management, router or model-generation library is selected yet. The cur
 - Production startup runs `prisma migrate deploy` before NestJS, so committed migrations are applied on Render startup.
 - API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests, Web build and Android APK build are green. GitHub Pages contains the validated Coach/Staff invitation version.
 - Epic 01 — foundations (account, club, team and roles): complete.
+- Epic 02 — roster, player profiles and invitations: functionally validated and complete.
 
 ## Validation
 
