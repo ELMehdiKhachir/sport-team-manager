@@ -89,11 +89,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text('Accueil'), findsOneWidget);
-    expect(find.text('Calendrier'), findsOneWidget);
-    expect(find.text('Équipe'), findsOneWidget);
-    expect(find.text('Stats'), findsOneWidget);
-    expect(find.text('Profil'), findsOneWidget);
+    expect(find.byKey(const Key('nav-home')), findsOneWidget);
+    expect(find.byKey(const Key('nav-calendar')), findsOneWidget);
+    expect(find.byKey(const Key('nav-team')), findsOneWidget);
+    expect(find.byKey(const Key('nav-stats')), findsOneWidget);
+    expect(find.byKey(const Key('nav-profile')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('nav-calendar')));
     await tester.pumpAndSettle();
