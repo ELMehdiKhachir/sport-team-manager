@@ -1,6 +1,6 @@
 # Sport Team Manager
 
-Mobile-first assistant for amateur futsal coaches. The technical MVP foundation, Epic 01 and Slices 02.1 through 02.3 are functionally validated. Club and team creation, player lifecycle, cumulative roles, active-team switching, business permissions, and secure Coach/Staff invitations work end to end.
+Mobile-first assistant for amateur futsal coaches. The technical MVP foundation, Epics 01 and 02, and Slice 00.1 are functionally validated. Club and team creation, player lifecycle, cumulative roles, active-team switching, business permissions, secure Coach/Staff invitations, and the five-section mobile navigation work end to end.
 
 ## Repository layout
 
@@ -65,8 +65,9 @@ No state-management, router or model-generation library is selected yet. The cur
 - Slice 02.1 — edit player information: functionally validated and complete. Managers and coaches can update the pre-filled player form and clear optional sports fields; player-only memberships cannot access the action. NestJS enforces MANAGE_ROSTER and team ownership.
 - Slice 02.2 — deactivate/reactivate players: functionally validated and complete. Inactive players remain visible without losing profile data or account association; managers and coaches can change status, while player-only memberships cannot access the action.
 - Slice 02.3 — invite Coach/Staff members: functionally validated and complete. Only managers can issue secure, single-use invitations that expire after seven days. Claiming an invitation adds the selected role without removing roles already held by the member.
+- Slice 00.1 — main mobile navigation: functionally validated and complete. The authenticated shell exposes Home, Calendar, Team, Stats and Profile while preserving Home state between tab changes. Profile displays the connected account and supports sign-out.
 - Production startup runs `prisma migrate deploy` before NestJS, so committed migrations are applied on Render startup.
-- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests, Web build and Android APK build are green. GitHub Pages contains the validated Coach/Staff invitation version.
+- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests, Web build and Android APK build are green. GitHub Pages contains the validated five-section navigation version.
 - Epic 01 — foundations (account, club, team and roles): complete.
 - Epic 02 — roster, player profiles and invitations: functionally validated and complete.
 
