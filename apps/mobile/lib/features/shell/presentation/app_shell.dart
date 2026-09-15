@@ -155,9 +155,10 @@ class _ComingSoonPage extends StatelessWidget {
                     const SizedBox(height: 20),
                     Text(
                       title,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -226,9 +227,10 @@ class _ProfilePage extends StatelessWidget {
                       displayName?.isNotEmpty == true
                           ? displayName!
                           : 'Mon compte',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
                     ),
                     if (email?.isNotEmpty == true) ...[
                       const SizedBox(height: 6),
