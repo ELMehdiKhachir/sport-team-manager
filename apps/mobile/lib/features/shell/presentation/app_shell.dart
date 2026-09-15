@@ -33,10 +33,10 @@ class _AppShellState extends State<AppShell> {
   void initState() {
     super.initState();
     final parameters = Uri.base.queryParameters;
-    _selectedIndex = parameters.containsKey('invite') ||
-            parameters.containsKey('teamInvite')
-        ? 2
-        : 0;
+    _selectedIndex =
+        parameters.containsKey('invite') || parameters.containsKey('teamInvite')
+            ? 2
+            : 0;
   }
 
   void _selectTab(int index) {
@@ -123,16 +123,12 @@ class _ComingSoonPage extends StatelessWidget {
     required this.title,
     required this.icon,
     required this.message,
-    this.actionLabel,
-    this.onAction,
     super.key,
   });
 
   final String title;
   final IconData icon;
   final String message;
-  final String? actionLabel;
-  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -169,14 +165,6 @@ class _ComingSoonPage extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(color: colors.onSurfaceVariant),
                     ),
-                    if (actionLabel != null && onAction != null) ...[
-                      const SizedBox(height: 20),
-                      FilledButton.tonalIcon(
-                        onPressed: onAction,
-                        icon: const Icon(Icons.home_outlined),
-                        label: Text(actionLabel!),
-                      ),
-                    ],
                   ],
                 ),
               ),

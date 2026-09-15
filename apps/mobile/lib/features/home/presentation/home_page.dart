@@ -64,8 +64,7 @@ class _HomePageState extends State<HomePage> {
             FutureBuilder<ServerIdentity>(
               future: _identityRequest,
               builder: (context, snapshot) {
-                final isVerified =
-                    snapshot.data?.firebaseUid == widget.user.id;
+                final isVerified = snapshot.data?.firebaseUid == widget.user.id;
                 if (snapshot.connectionState != ConnectionState.done) {
                   return const Card(
                     child: ListTile(
