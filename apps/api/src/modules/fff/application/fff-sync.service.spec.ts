@@ -1,3 +1,4 @@
+import { vi } from 'vitest';
 import { FffGateway } from '../domain/fff-gateway.js';
 import { FffMapper } from './fff-mapper.js';
 import { FffSyncService } from './fff-sync.service.js';
@@ -12,8 +13,8 @@ describe('FffSyncService', () => {
 
   it('persists mapped matches after a successful provider fetch', async () => {
     const gateway = {
-      getCompetition: jest.fn().mockResolvedValue(competition),
-      getSchedule: jest.fn().mockResolvedValue([
+      getCompetition: vi.fn().mockResolvedValue(competition),
+      getSchedule: vi.fn().mockResolvedValue([
         {
           externalId: 'match-1',
           startsAt: new Date('2026-09-20T18:00:00Z'),
@@ -24,7 +25,7 @@ describe('FffSyncService', () => {
       ]),
     } as unknown as FffGateway;
     const repository = {
-      saveSync: jest.fn().mockResolvedValue(undefined),
+      saveSync: vi.fn().mockResolvedValue(undefined),
     } as unknown as OfficialMatchRepository;
 
     const service = new FffSyncService(gateway, repository, new FffMapper());
@@ -36,11 +37,11 @@ describe('FffSyncService', () => {
 
   it('does not touch persisted data when the provider fails', async () => {
     const gateway = {
-      getCompetition: jest.fn().mockRejectedValue(new Error('FFF unavailable')),
-      getSchedule: jest.fn(),
+      getCompetition: vi.fn().mockRejectedValue(new Error('FFF unavailable')),
+      getSchedule: vi.fn(),
     } as unknown as FffGateway;
     const repository = {
-      saveSync: jest.fn(),
+      saveSync: vi.fn(),
     } as unknown as OfficialMatchRepository;
 
     const service = new FffSyncService(gateway, repository, new FffMapper());
