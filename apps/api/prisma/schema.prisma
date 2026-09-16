@@ -27,6 +27,19 @@ enum DominantFoot {
   BOTH
 }
 
+enum MatchVenue {
+  HOME
+  AWAY
+  NEUTRAL
+}
+
+enum MatchStatus {
+  SCHEDULED
+  POSTPONED
+  CANCELLED
+  PLAYED
+}
+
 model User {
   id             String           @id @default(cuid())
   firebaseUid    String           @unique
@@ -47,15 +60,17 @@ model Club {
 }
 
 model Team {
-  id          String           @id @default(cuid())
-  name        String
-  clubId      String?
-  club        Club?            @relation(fields: [clubId], references: [id], onDelete: SetNull)
-  memberships TeamMembership[]
-  players     PlayerProfile[]
-  memberInvitations TeamMemberInvitation[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id                   String                 @id @default(cuid())
+  name                 String
+  clubId               String?
+  club                 Club?                  @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  memberships          TeamMembership[]
+  players              PlayerProfile[]
+  memberInvitations    TeamMemberInvitation[]
+  officialCompetitions OfficialCompetition[]
+  officialMatches      OfficialMatch[]
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
 
   @@index([clubId])
 }
@@ -98,7 +113,7 @@ model PlayerProfile {
   secondaryPosition PlayerPosition?
   shirtNumber       Int?
   dominantFoot      DominantFoot?
-  active           Boolean         @default(true)
+  active            Boolean         @default(true)
   inviteTokenHash   String?         @unique
   inviteExpiresAt   DateTime?
   team              Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -109,4 +124,47 @@ model PlayerProfile {
   @@unique([teamId, userId])
   @@index([teamId])
   @@index([teamId, lastName, firstName])
+}
+
+model OfficialCompetition {
+  id                String          @id @default(cuid())
+  teamId            String
+  provider          String          @default("FFF")
+  externalId        String
+  externalTeamId    String
+  name              String
+  seasonLabel       String?
+  team              Team            @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  matches           OfficialMatch[]
+  lastSyncedAt      DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([teamId, provider, externalId])
+  @@index([teamId])
+  @@index([provider, externalTeamId])
+}
+
+model OfficialMatch {
+  id             String              @id @default(cuid())
+  teamId         String
+  competitionId  String
+  provider       String              @default("FFF")
+  externalId     String
+  startsAt       DateTime
+  venue          MatchVenue
+  status         MatchStatus         @default(SCHEDULED)
+  homeTeamName   String
+  awayTeamName   String
+  homeExternalId String?
+  awayExternalId String?
+  team           Team                @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  competition    OfficialCompetition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  lastSyncedAt   DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@unique([provider, externalId])
+  @@index([teamId, startsAt])
+  @@index([competitionId, startsAt])
 }
