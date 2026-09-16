@@ -10,7 +10,7 @@ export interface OfficialCalendarMatch {
   competition: {
     id: string;
     name: string;
-    seasonLabel?: string;
+    seasonLabel: string | null;
   };
 }
 
