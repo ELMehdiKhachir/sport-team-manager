@@ -8,6 +8,7 @@ import { IdentityModule } from './modules/identity/identity.module.js';
 import { ClubModule } from './modules/club/club.module.js';
 import { TeamModule } from './modules/team/team.module.js';
 import { RosterModule } from './modules/roster/roster.module.js';
+import { FffModule } from './modules/fff/fff.module.js';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RosterModule } from './modules/roster/roster.module.js';
     ClubModule,
     TeamModule,
     RosterModule,
+    FffModule,
   ],
   controllers: [AppController],
   providers: [AppService],
