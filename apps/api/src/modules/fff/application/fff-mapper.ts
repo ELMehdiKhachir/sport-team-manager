@@ -1,4 +1,4 @@
-import { FffCompetitionRef, FffMatch } from '../domain/fff-gateway';
+import { FffCompetitionRef, FffMatch } from '../domain/fff-gateway.js';
 
 export type ImportedMatchVenue = 'HOME' | 'AWAY' | 'NEUTRAL';
 
