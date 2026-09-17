@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sport_team_manager/app/app.dart';
 import 'package:sport_team_manager/app/config/app_config.dart';
 import 'package:sport_team_manager/core/auth/firebase_auth_gateway.dart';
+import 'package:sport_team_manager/core/network/http_calendar_gateway.dart';
 import 'package:sport_team_manager/core/network/http_identity_gateway.dart';
 import 'package:sport_team_manager/core/network/http_player_gateway.dart';
 import 'package:sport_team_manager/core/network/http_team_gateway.dart';
@@ -26,6 +27,10 @@ Future<void> main() async {
     baseUrl: AppConfig.apiBaseUrl,
     idTokenProvider: authGateway.getIdToken,
   );
+  final calendarGateway = HttpCalendarGateway(
+    baseUrl: AppConfig.apiBaseUrl,
+    idTokenProvider: authGateway.getIdToken,
+  );
 
   runApp(
     SportTeamManagerApp(
@@ -33,6 +38,7 @@ Future<void> main() async {
       identityGateway: identityGateway,
       teamGateway: teamGateway,
       playerGateway: playerGateway,
+      calendarGateway: calendarGateway,
     ),
   );
 }
