@@ -23,6 +23,20 @@ export class PrismaOfficialMatchQueryRepository
     return user?.memberships[0]?.roles ?? null;
   }
 
+  getOfficialTeamLink(teamId: string) {
+    return this.prisma.teamOfficialLink.findUnique({
+      where: { teamId },
+      select: {
+        provider: true,
+        externalClubId: true,
+        externalTeamId: true,
+        externalCompetitionId: true,
+        competitionName: true,
+        seasonLabel: true,
+      },
+    });
+  }
+
   listByTeam(teamId: string) {
     return this.prisma.officialMatch.findMany({
       where: { teamId },
