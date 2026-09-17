@@ -3,6 +3,7 @@ abstract final class TeamPermission {
   static const manageRoster = 'MANAGE_ROSTER';
   static const invitePlayer = 'INVITE_PLAYER';
   static const manageTeamMembers = 'MANAGE_TEAM_MEMBERS';
+  static const fffSync = 'FFF_SYNC';
   static const makeSportingDecisions = 'MAKE_SPORTING_DECISIONS';
   static const recordLiveEvents = 'RECORD_LIVE_EVENTS';
   static const viewManagementStats = 'VIEW_MANAGEMENT_STATS';
