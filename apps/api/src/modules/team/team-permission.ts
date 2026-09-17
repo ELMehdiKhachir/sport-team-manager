@@ -5,6 +5,7 @@ export enum TeamPermission {
   MANAGE_ROSTER = 'MANAGE_ROSTER',
   INVITE_PLAYER = 'INVITE_PLAYER',
   MANAGE_TEAM_MEMBERS = 'MANAGE_TEAM_MEMBERS',
+  FFF_SYNC = 'FFF_SYNC',
   MAKE_SPORTING_DECISIONS = 'MAKE_SPORTING_DECISIONS',
   RECORD_LIVE_EVENTS = 'RECORD_LIVE_EVENTS',
   VIEW_MANAGEMENT_STATS = 'VIEW_MANAGEMENT_STATS',
@@ -19,6 +20,7 @@ const permissionsByRole = new Map<string, readonly TeamPermission[]>([
       TeamPermission.MANAGE_ROSTER,
       TeamPermission.INVITE_PLAYER,
       TeamPermission.MANAGE_TEAM_MEMBERS,
+      TeamPermission.FFF_SYNC,
     ],
   ],
   [
