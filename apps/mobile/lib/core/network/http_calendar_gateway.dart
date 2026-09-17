@@ -16,12 +16,17 @@ class HttpCalendarGateway implements CalendarGateway {
   final Future<String?> Function() _idTokenProvider;
   final http.Client _client;
 
-  @override
-  Future<List<OfficialMatchSummary>> getOfficialMatches(String teamId) async {
+  Future<String> _token() async {
     final token = await _idTokenProvider();
     if (token == null || token.isEmpty) {
       throw const CalendarRequestException('Aucun jeton Firebase disponible.');
     }
+    return token;
+  }
+
+  @override
+  Future<List<OfficialMatchSummary>> getOfficialMatches(String teamId) async {
+    final token = await _token();
     final response = await _client.get(
       _baseUri.resolve('/teams/$teamId/calendar/official-matches'),
       headers: {'Authorization': 'Bearer $token'},
@@ -57,6 +62,38 @@ class HttpCalendarGateway implements CalendarGateway {
         seasonLabel: competition['seasonLabel'] as String?,
       );
     }).toList(growable: false);
+  }
+
+  @override
+  Future<int> syncOfficialMatches(
+    String teamId,
+    OfficialCompetitionSyncRequest competition,
+  ) async {
+    final token = await _token();
+    final response = await _client.post(
+      _baseUri.resolve('/teams/$teamId/calendar/official-matches/sync'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'externalId': competition.externalId,
+        'externalTeamId': competition.externalTeamId,
+        'name': competition.name,
+        if (competition.seasonLabel != null)
+          'seasonLabel': competition.seasonLabel,
+      }),
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw CalendarRequestException(
+        'Impossible de synchroniser avec la FFF (${response.statusCode}).',
+      );
+    }
+    final payload = jsonDecode(response.body);
+    if (payload is! Map || payload['importedMatches'] is! num) {
+      throw const CalendarRequestException('Réponse de synchronisation inattendue.');
+    }
+    return (payload['importedMatches'] as num).toInt();
   }
 }
 
