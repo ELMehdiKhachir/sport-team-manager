@@ -8,14 +8,14 @@ import 'package:sport_team_manager/core/network/team_gateway.dart';
 import 'package:sport_team_manager/features/auth/presentation/auth_gate.dart';
 
 class SportTeamManagerApp extends StatelessWidget {
-  const SportTeamManagerApp({
+  SportTeamManagerApp({
     required this.authGateway,
     required this.identityGateway,
     required this.teamGateway,
     required this.playerGateway,
-    required this.calendarGateway,
+    CalendarGateway? calendarGateway,
     super.key,
-  });
+  }) : calendarGateway = calendarGateway ?? const _EmptyCalendarGateway();
 
   final AuthGateway authGateway;
   final IdentityGateway identityGateway;
@@ -42,4 +42,12 @@ class SportTeamManagerApp extends StatelessWidget {
       ),
     );
   }
+}
+
+class _EmptyCalendarGateway implements CalendarGateway {
+  const _EmptyCalendarGateway();
+
+  @override
+  Future<List<OfficialMatchSummary>> getOfficialMatches(String teamId) async =>
+      const [];
 }
