@@ -31,6 +31,7 @@ describe('CreateClubWithTeamService', () => {
       'MANAGE_ROSTER',
       'INVITE_PLAYER',
       'MANAGE_TEAM_MEMBERS',
+      'FFF_SYNC',
     ]);
   });
 
