@@ -67,12 +67,30 @@ model Team {
   memberships          TeamMembership[]
   players              PlayerProfile[]
   memberInvitations    TeamMemberInvitation[]
+  officialLink         TeamOfficialLink?
   officialCompetitions OfficialCompetition[]
   officialMatches      OfficialMatch[]
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
 
   @@index([clubId])
+}
+
+model TeamOfficialLink {
+  id                    String   @id @default(cuid())
+  teamId                String   @unique
+  provider              String   @default("FFF")
+  externalClubId        String
+  externalTeamId        String?
+  externalCompetitionId String
+  competitionName       String
+  seasonLabel           String?
+  team                   Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@index([provider, externalClubId])
+  @@index([provider, externalTeamId])
 }
 
 model TeamMemberInvitation {
