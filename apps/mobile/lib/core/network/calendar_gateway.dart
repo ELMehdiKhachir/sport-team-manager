@@ -22,6 +22,25 @@ class OfficialMatchSummary {
   final String? seasonLabel;
 }
 
+class OfficialCompetitionSyncRequest {
+  const OfficialCompetitionSyncRequest({
+    required this.externalId,
+    required this.externalTeamId,
+    required this.name,
+    this.seasonLabel,
+  });
+
+  final String externalId;
+  final String externalTeamId;
+  final String name;
+  final String? seasonLabel;
+}
+
 abstract interface class CalendarGateway {
   Future<List<OfficialMatchSummary>> getOfficialMatches(String teamId);
+
+  Future<int> syncOfficialMatches(
+    String teamId,
+    OfficialCompetitionSyncRequest competition,
+  );
 }
