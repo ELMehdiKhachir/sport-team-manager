@@ -5,6 +5,7 @@ import { FffSyncService } from './application/fff-sync.service.js';
 import { ListOfficialMatchesService } from './application/list-official-matches.service.js';
 import { OfficialMatchQueryRepository } from './application/official-match-query.repository.js';
 import { OfficialMatchRepository } from './application/official-match.repository.js';
+import { SyncOfficialMatchesService } from './application/sync-official-matches.service.js';
 import { FffGateway } from './domain/fff-gateway.js';
 import { FffController } from './fff.controller.js';
 import { DofaFffGateway } from './infrastructure/dofa-fff.gateway.js';
@@ -18,6 +19,7 @@ import { PrismaOfficialMatchRepository } from './infrastructure/prisma-official-
     FffMapper,
     FffSyncService,
     ListOfficialMatchesService,
+    SyncOfficialMatchesService,
     {
       provide: FffGateway,
       useClass: DofaFffGateway,
