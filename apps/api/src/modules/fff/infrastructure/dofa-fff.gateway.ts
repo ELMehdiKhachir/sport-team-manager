@@ -112,7 +112,10 @@ export class DofaFffGateway implements FffGateway {
   }
 
   private status(match: DofaMatch): FffMatchStatus {
-    if (match.home_score !== null && match.away_score !== null) {
+    if (
+      typeof match.home_score === 'number' &&
+      typeof match.away_score === 'number'
+    ) {
       return 'PLAYED';
     }
     return 'SCHEDULED';
