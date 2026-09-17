@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -11,13 +11,6 @@ import { FirebaseAuthGuard } from '../../infrastructure/firebase/firebase-auth.g
 import type { FirebaseIdentity } from '../../infrastructure/firebase/firebase-identity.js';
 import { ListOfficialMatchesService } from './application/list-official-matches.service.js';
 import { SyncOfficialMatchesService } from './application/sync-official-matches.service.js';
-
-class SyncOfficialMatchesBody {
-  externalId!: string;
-  externalTeamId!: string;
-  name!: string;
-  seasonLabel?: string;
-}
 
 @ApiTags('calendar')
 @ApiBearerAuth()
@@ -41,14 +34,13 @@ export class FffController {
   }
 
   @Post('sync')
-  @ApiOperation({ summary: 'Synchronize official FFF matches for a team' })
+  @ApiOperation({ summary: 'Synchronize official FFF matches for a configured team' })
   @ApiOkResponse({ description: 'FFF synchronization completed' })
   @ApiForbiddenResponse({ description: 'FFF synchronization permission is required' })
   sync(
     @Param('teamId') teamId: string,
     @CurrentFirebaseIdentity() identity: FirebaseIdentity,
-    @Body() body: SyncOfficialMatchesBody,
   ) {
-    return this.syncOfficialMatches.execute(identity.firebaseUid, teamId, body);
+    return this.syncOfficialMatches.execute(identity.firebaseUid, teamId);
   }
 }
