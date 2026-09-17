@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sport_team_manager/core/auth/auth_gateway.dart';
+import 'package:sport_team_manager/core/network/calendar_gateway.dart';
 import 'package:sport_team_manager/core/network/identity_gateway.dart';
 import 'package:sport_team_manager/core/network/player_gateway.dart';
 import 'package:sport_team_manager/core/network/team_gateway.dart';
+import 'package:sport_team_manager/features/calendar/presentation/calendar_page.dart';
 import 'package:sport_team_manager/features/home/presentation/home_page.dart';
 import 'package:sport_team_manager/features/team/presentation/team_page.dart';
 
@@ -12,6 +14,7 @@ class AppShell extends StatefulWidget {
     required this.identityGateway,
     required this.teamGateway,
     required this.playerGateway,
+    required this.calendarGateway,
     required this.onSignOut,
     super.key,
   });
@@ -20,6 +23,7 @@ class AppShell extends StatefulWidget {
   final IdentityGateway identityGateway;
   final TeamGateway teamGateway;
   final PlayerGateway playerGateway;
+  final CalendarGateway calendarGateway;
   final Future<void> Function() onSignOut;
 
   @override
@@ -70,12 +74,10 @@ class _AppShellState extends State<AppShell> {
             teamsRevision: _teamsRevision,
             onOpenTeam: () => _selectTab(2),
           ),
-          const _ComingSoonPage(
-            key: Key('calendar-page'),
-            title: 'Calendrier',
-            icon: Icons.calendar_month_outlined,
-            message:
-                'Les matchs et entraînements seront disponibles dans une prochaine étape.',
+          CalendarPage(
+            key: const Key('calendar-page'),
+            gateway: widget.calendarGateway,
+            teamId: _selectedTeamId,
           ),
           TeamPage(
             teamGateway: widget.teamGateway,
@@ -102,36 +104,11 @@ class _AppShellState extends State<AppShell> {
         selectedIndex: _selectedIndex,
         onDestinationSelected: _selectTab,
         destinations: const [
-          NavigationDestination(
-            key: Key('nav-home'),
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Accueil',
-          ),
-          NavigationDestination(
-            key: Key('nav-calendar'),
-            icon: Icon(Icons.calendar_month_outlined),
-            selectedIcon: Icon(Icons.calendar_month),
-            label: 'Calendrier',
-          ),
-          NavigationDestination(
-            key: Key('nav-team'),
-            icon: Icon(Icons.groups_2_outlined),
-            selectedIcon: Icon(Icons.groups_2),
-            label: 'Équipe',
-          ),
-          NavigationDestination(
-            key: Key('nav-stats'),
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: 'Stats',
-          ),
-          NavigationDestination(
-            key: Key('nav-profile'),
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profil',
-          ),
+          NavigationDestination(key: Key('nav-home'), icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Accueil'),
+          NavigationDestination(key: Key('nav-calendar'), icon: Icon(Icons.calendar_month_outlined), selectedIcon: Icon(Icons.calendar_month), label: 'Calendrier'),
+          NavigationDestination(key: Key('nav-team'), icon: Icon(Icons.groups_2_outlined), selectedIcon: Icon(Icons.groups_2), label: 'Équipe'),
+          NavigationDestination(key: Key('nav-stats'), icon: Icon(Icons.bar_chart_outlined), selectedIcon: Icon(Icons.bar_chart), label: 'Stats'),
+          NavigationDestination(key: Key('nav-profile'), icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profil'),
         ],
       ),
     );
@@ -139,13 +116,7 @@ class _AppShellState extends State<AppShell> {
 }
 
 class _ComingSoonPage extends StatelessWidget {
-  const _ComingSoonPage({
-    required this.title,
-    required this.icon,
-    required this.message,
-    super.key,
-  });
-
+  const _ComingSoonPage({required this.title, required this.icon, required this.message, super.key});
   final String title;
   final IconData icon;
   final String message;
@@ -162,31 +133,13 @@ class _ComingSoonPage extends StatelessWidget {
             child: Card(
               child: Padding(
                 padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 32,
-                      backgroundColor: colors.primaryContainer,
-                      foregroundColor: colors.onPrimaryContainer,
-                      child: Icon(icon, size: 32),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      title,
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      message,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: colors.onSurfaceVariant),
-                    ),
-                  ],
-                ),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  CircleAvatar(radius: 32, backgroundColor: colors.primaryContainer, foregroundColor: colors.onPrimaryContainer, child: Icon(icon, size: 32)),
+                  const SizedBox(height: 20),
+                  Text(title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 10),
+                  Text(message, textAlign: TextAlign.center, style: TextStyle(color: colors.onSurfaceVariant)),
+                ]),
               ),
             ),
           ),
@@ -197,12 +150,7 @@ class _ComingSoonPage extends StatelessWidget {
 }
 
 class _ProfilePage extends StatelessWidget {
-  const _ProfilePage({
-    required this.user,
-    required this.onSignOut,
-    super.key,
-  });
-
+  const _ProfilePage({required this.user, required this.onSignOut, super.key});
   final AuthUser user;
   final Future<void> Function() onSignOut;
 
@@ -211,58 +159,19 @@ class _ProfilePage extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final displayName = user.displayName?.trim();
     final email = user.email?.trim();
-
     return Scaffold(
       appBar: AppBar(title: const Text('Profil')),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: CircleAvatar(
-                        radius: 32,
-                        backgroundColor: colors.primaryContainer,
-                        foregroundColor: colors.onPrimaryContainer,
-                        child: const Icon(Icons.person, size: 32),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      displayName?.isNotEmpty == true
-                          ? displayName!
-                          : 'Mon compte',
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
-                    ),
-                    if (email?.isNotEmpty == true) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        email!,
-                        style: TextStyle(color: colors.onSurfaceVariant),
-                      ),
-                    ],
-                    const SizedBox(height: 24),
-                    OutlinedButton.icon(
-                      key: const Key('profile-sign-out'),
-                      onPressed: onSignOut,
-                      icon: const Icon(Icons.logout),
-                      label: const Text('Se déconnecter'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+        child: ListView(padding: const EdgeInsets.all(24), children: [
+          Card(child: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Align(alignment: Alignment.centerLeft, child: CircleAvatar(radius: 32, backgroundColor: colors.primaryContainer, foregroundColor: colors.onPrimaryContainer, child: const Icon(Icons.person, size: 32))),
+            const SizedBox(height: 20),
+            Text(displayName?.isNotEmpty == true ? displayName! : 'Mon compte', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+            if (email?.isNotEmpty == true) ...[const SizedBox(height: 6), Text(email!, style: TextStyle(color: colors.onSurfaceVariant))],
+            const SizedBox(height: 24),
+            OutlinedButton.icon(key: const Key('profile-sign-out'), onPressed: onSignOut, icon: const Icon(Icons.logout), label: const Text('Se déconnecter')),
+          ]))),
+        ]),
       ),
     );
   }
