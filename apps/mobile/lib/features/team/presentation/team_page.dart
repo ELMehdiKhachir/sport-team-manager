@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sport_team_manager/core/network/calendar_gateway.dart';
 import 'package:sport_team_manager/core/network/player_gateway.dart';
 import 'package:sport_team_manager/core/network/team_gateway.dart';
 import 'package:sport_team_manager/features/team/presentation/roster_page.dart';
@@ -8,6 +9,7 @@ class TeamPage extends StatefulWidget {
   const TeamPage({
     required this.teamGateway,
     required this.playerGateway,
+    required this.calendarGateway,
     required this.selectedTeamId,
     required this.onTeamSelected,
     required this.onTeamsChanged,
@@ -16,6 +18,7 @@ class TeamPage extends StatefulWidget {
 
   final TeamGateway teamGateway;
   final PlayerGateway playerGateway;
+  final CalendarGateway calendarGateway;
   final String? selectedTeamId;
   final ValueChanged<String> onTeamSelected;
   final ValueChanged<String?> onTeamsChanged;
@@ -223,6 +226,7 @@ class _TeamPageState extends State<TeamPage> {
                         selectedTeamId: widget.selectedTeamId,
                         teamGateway: widget.teamGateway,
                         playerGateway: widget.playerGateway,
+                        calendarGateway: widget.calendarGateway,
                         onTeamSelected: widget.onTeamSelected,
                       ),
                   ],
@@ -369,6 +373,7 @@ class _TeamWorkspace extends StatelessWidget {
     required this.selectedTeamId,
     required this.teamGateway,
     required this.playerGateway,
+    required this.calendarGateway,
     required this.onTeamSelected,
   });
 
@@ -376,6 +381,7 @@ class _TeamWorkspace extends StatelessWidget {
   final String? selectedTeamId;
   final TeamGateway teamGateway;
   final PlayerGateway playerGateway;
+  final CalendarGateway calendarGateway;
   final ValueChanged<String> onTeamSelected;
 
   TeamSummary get activeTeam => teams.firstWhere(
@@ -420,6 +426,7 @@ class _TeamWorkspace extends StatelessWidget {
           team: team,
           teamGateway: teamGateway,
           playerGateway: playerGateway,
+          calendarGateway: calendarGateway,
         ),
       ],
     );
@@ -431,11 +438,13 @@ class _TeamCard extends StatelessWidget {
     required this.team,
     required this.teamGateway,
     required this.playerGateway,
+    required this.calendarGateway,
   });
 
   final TeamSummary team;
   final TeamGateway teamGateway;
   final PlayerGateway playerGateway;
+  final CalendarGateway calendarGateway;
 
   Future<void> _inviteMember(BuildContext context) async {
     final role = await showModalBottomSheet<TeamInvitationRole>(
@@ -520,6 +529,100 @@ class _TeamCard extends StatelessWidget {
     }
   }
 
+  Future<void> _configureFff(BuildContext context) async {
+    final club = TextEditingController();
+    final competition = TextEditingController();
+    final name = TextEditingController(text: 'D2 FUTSAL');
+    final season = TextEditingController(text: '2026-2027');
+    final formKey = GlobalKey<FormState>();
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Lier l’équipe à la FFF'),
+        content: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: club,
+                  decoration: const InputDecoration(labelText: 'ID club FFF/API'),
+                  validator: (v) => v == null || v.trim().isEmpty ? 'Obligatoire' : null,
+                ),
+                TextFormField(
+                  controller: competition,
+                  decoration: const InputDecoration(labelText: 'ID compétition FFF'),
+                  validator: (v) => v == null || v.trim().isEmpty ? 'Obligatoire' : null,
+                ),
+                TextFormField(
+                  controller: name,
+                  decoration: const InputDecoration(labelText: 'Nom compétition'),
+                  validator: (v) => v == null || v.trim().isEmpty ? 'Obligatoire' : null,
+                ),
+                TextFormField(
+                  controller: season,
+                  decoration: const InputDecoration(labelText: 'Saison'),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Annuler')),
+          FilledButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) Navigator.pop(dialogContext, true);
+            },
+            child: const Text('Enregistrer'),
+          ),
+        ],
+      ),
+    );
+    if (saved != true || !context.mounted) return;
+    try {
+      await calendarGateway.configureOfficialTeamLink(
+        team.id,
+        OfficialTeamLinkInput(
+          externalClubId: club.text.trim(),
+          externalCompetitionId: competition.text.trim(),
+          competitionName: name.text.trim(),
+          seasonLabel: season.text.trim().isEmpty ? null : season.text.trim(),
+        ),
+      );
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Liaison FFF enregistrée.')),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Impossible d’enregistrer la liaison FFF.')),
+      );
+    } finally {
+      club.dispose();
+      competition.dispose();
+      name.dispose();
+      season.dispose();
+    }
+  }
+
+  Future<void> _syncFff(BuildContext context) async {
+    try {
+      final imported = await calendarGateway.syncOfficialMatches(team.id);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$imported match(s) officiel(s) synchronisé(s).')),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Synchronisation FFF impossible. Vérifie d’abord la liaison officielle.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -573,6 +676,22 @@ class _TeamCard extends StatelessWidget {
               icon: const Icon(Icons.groups_2_outlined),
               label: const Text('Ouvrir l’effectif'),
             ),
+            if (team.allows(TeamPermission.fffSync)) ...[
+              const SizedBox(height: 10),
+              OutlinedButton.icon(
+                key: const Key('configure-fff-link'),
+                onPressed: () => _configureFff(context),
+                icon: const Icon(Icons.link),
+                label: const Text('Configurer la liaison FFF'),
+              ),
+              const SizedBox(height: 10),
+              FilledButton.icon(
+                key: const Key('sync-fff'),
+                onPressed: () => _syncFff(context),
+                icon: const Icon(Icons.sync),
+                label: const Text('Synchroniser avec la FFF'),
+              ),
+            ],
             if (team.allows(TeamPermission.manageTeamMembers)) ...[
               const SizedBox(height: 10),
               OutlinedButton.icon(
