@@ -31,5 +31,10 @@ export abstract class OfficialMatchQueryRepository {
 
   abstract getOfficialTeamLink(teamId: string): Promise<OfficialTeamLink | null>;
 
+  abstract saveOfficialTeamLink(
+    teamId: string,
+    link: OfficialTeamLink,
+  ): Promise<OfficialTeamLink>;
+
   abstract listByTeam(teamId: string): Promise<OfficialCalendarMatch[]>;
 }
