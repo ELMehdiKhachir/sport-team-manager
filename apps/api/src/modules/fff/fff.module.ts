@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../infrastructure/prisma/prisma.module.js';
+import { ConfigureOfficialTeamLinkService } from './application/configure-official-team-link.service.js';
 import { FffMapper } from './application/fff-mapper.js';
 import { FffSyncService } from './application/fff-sync.service.js';
 import { ListOfficialMatchesService } from './application/list-official-matches.service.js';
@@ -20,6 +21,7 @@ import { PrismaOfficialMatchRepository } from './infrastructure/prisma-official-
     FffSyncService,
     ListOfficialMatchesService,
     SyncOfficialMatchesService,
+    ConfigureOfficialTeamLinkService,
     {
       provide: FffGateway,
       useClass: DofaFffGateway,
