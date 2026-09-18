@@ -1,6 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/prisma/prisma.service.js';
-import { OfficialMatchQueryRepository } from '../application/official-match-query.repository.js';
+import {
+  OfficialMatchQueryRepository,
+  type OfficialTeamLink,
+} from '../application/official-match-query.repository.js';
+
+const officialTeamLinkSelect = {
+  provider: true,
+  externalClubId: true,
+  externalTeamId: true,
+  externalCompetitionId: true,
+  competitionName: true,
+  seasonLabel: true,
+} as const;
 
 @Injectable()
 export class PrismaOfficialMatchQueryRepository
@@ -26,14 +38,16 @@ export class PrismaOfficialMatchQueryRepository
   getOfficialTeamLink(teamId: string) {
     return this.prisma.teamOfficialLink.findUnique({
       where: { teamId },
-      select: {
-        provider: true,
-        externalClubId: true,
-        externalTeamId: true,
-        externalCompetitionId: true,
-        competitionName: true,
-        seasonLabel: true,
-      },
+      select: officialTeamLinkSelect,
+    });
+  }
+
+  saveOfficialTeamLink(teamId: string, link: OfficialTeamLink) {
+    return this.prisma.teamOfficialLink.upsert({
+      where: { teamId },
+      create: { teamId, ...link },
+      update: link,
+      select: officialTeamLinkSelect,
     });
   }
 
