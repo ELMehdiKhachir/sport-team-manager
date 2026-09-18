@@ -65,24 +65,38 @@ class HttpCalendarGateway implements CalendarGateway {
   }
 
   @override
-  Future<int> syncOfficialMatches(
+  Future<void> configureOfficialTeamLink(
     String teamId,
-    OfficialCompetitionSyncRequest competition,
+    OfficialTeamLinkInput link,
   ) async {
     final token = await _token();
-    final response = await _client.post(
-      _baseUri.resolve('/teams/$teamId/calendar/official-matches/sync'),
+    final response = await _client.put(
+      _baseUri.resolve('/teams/$teamId/calendar/official-matches/link'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        'externalId': competition.externalId,
-        'externalTeamId': competition.externalTeamId,
-        'name': competition.name,
-        if (competition.seasonLabel != null)
-          'seasonLabel': competition.seasonLabel,
+        'externalClubId': link.externalClubId,
+        if (link.externalTeamId != null) 'externalTeamId': link.externalTeamId,
+        'externalCompetitionId': link.externalCompetitionId,
+        'competitionName': link.competitionName,
+        if (link.seasonLabel != null) 'seasonLabel': link.seasonLabel,
       }),
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw CalendarRequestException(
+        'Impossible d’enregistrer la liaison FFF (${response.statusCode}).',
+      );
+    }
+  }
+
+  @override
+  Future<int> syncOfficialMatches(String teamId) async {
+    final token = await _token();
+    final response = await _client.post(
+      _baseUri.resolve('/teams/$teamId/calendar/official-matches/sync'),
+      headers: {'Authorization': 'Bearer $token'},
     );
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw CalendarRequestException(
@@ -95,6 +109,7 @@ class HttpCalendarGateway implements CalendarGateway {
     }
     return (payload['importedMatches'] as num).toInt();
   }
+
 }
 
 class CalendarRequestException implements Exception {
