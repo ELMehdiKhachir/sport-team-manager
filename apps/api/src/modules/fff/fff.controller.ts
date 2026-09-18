@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -9,6 +9,10 @@ import {
 import { CurrentFirebaseIdentity } from '../../infrastructure/firebase/current-firebase-identity.decorator.js';
 import { FirebaseAuthGuard } from '../../infrastructure/firebase/firebase-auth.guard.js';
 import type { FirebaseIdentity } from '../../infrastructure/firebase/firebase-identity.js';
+import {
+  ConfigureOfficialTeamLinkService,
+  type ConfigureOfficialTeamLinkInput,
+} from './application/configure-official-team-link.service.js';
 import { ListOfficialMatchesService } from './application/list-official-matches.service.js';
 import { SyncOfficialMatchesService } from './application/sync-official-matches.service.js';
 
@@ -20,6 +24,7 @@ export class FffController {
   constructor(
     private readonly listOfficialMatches: ListOfficialMatchesService,
     private readonly syncOfficialMatches: SyncOfficialMatchesService,
+    private readonly configureOfficialTeamLink: ConfigureOfficialTeamLinkService,
   ) {}
 
   @Get()
@@ -31,6 +36,22 @@ export class FffController {
     @CurrentFirebaseIdentity() identity: FirebaseIdentity,
   ) {
     return this.listOfficialMatches.execute(identity.firebaseUid, teamId);
+  }
+
+  @Put('link')
+  @ApiOperation({ summary: 'Configure the official FFF source of a team' })
+  @ApiOkResponse({ description: 'Official FFF link configured' })
+  @ApiForbiddenResponse({ description: 'FFF synchronization permission is required' })
+  configureLink(
+    @Param('teamId') teamId: string,
+    @CurrentFirebaseIdentity() identity: FirebaseIdentity,
+    @Body() body: ConfigureOfficialTeamLinkInput,
+  ) {
+    return this.configureOfficialTeamLink.execute(
+      identity.firebaseUid,
+      teamId,
+      body,
+    );
   }
 
   @Post('sync')
