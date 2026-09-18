@@ -105,7 +105,9 @@ class HttpCalendarGateway implements CalendarGateway {
     }
     final payload = jsonDecode(response.body);
     if (payload is! Map || payload['importedMatches'] is! num) {
-      throw const CalendarRequestException('Réponse de synchronisation inattendue.');
+      throw const CalendarRequestException(
+        'Réponse de synchronisation inattendue.',
+      );
     }
     return (payload['importedMatches'] as num).toInt();
   }
