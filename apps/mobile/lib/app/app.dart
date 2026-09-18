@@ -52,9 +52,11 @@ class _EmptyCalendarGateway implements CalendarGateway {
       const [];
 
   @override
-  Future<int> syncOfficialMatches(
+  Future<void> configureOfficialTeamLink(
     String teamId,
-    OfficialCompetitionSyncRequest competition,
-  ) async =>
-      0;
+    OfficialTeamLinkInput link,
+  ) async {}
+
+  @override
+  Future<int> syncOfficialMatches(String teamId) async => 0;
 }
