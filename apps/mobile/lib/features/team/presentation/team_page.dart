@@ -548,18 +548,24 @@ class _TeamCard extends StatelessWidget {
               children: [
                 TextFormField(
                   controller: club,
-                  decoration: const InputDecoration(labelText: 'ID club FFF/API'),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Obligatoire' : null,
+                  decoration:
+                      const InputDecoration(labelText: 'ID club FFF/API'),
+                  validator: (v) =>
+                      v == null || v.trim().isEmpty ? 'Obligatoire' : null,
                 ),
                 TextFormField(
                   controller: competition,
-                  decoration: const InputDecoration(labelText: 'ID compétition FFF'),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Obligatoire' : null,
+                  decoration:
+                      const InputDecoration(labelText: 'ID compétition FFF'),
+                  validator: (v) =>
+                      v == null || v.trim().isEmpty ? 'Obligatoire' : null,
                 ),
                 TextFormField(
                   controller: name,
-                  decoration: const InputDecoration(labelText: 'Nom compétition'),
-                  validator: (v) => v == null || v.trim().isEmpty ? 'Obligatoire' : null,
+                  decoration:
+                      const InputDecoration(labelText: 'Nom compétition'),
+                  validator: (v) =>
+                      v == null || v.trim().isEmpty ? 'Obligatoire' : null,
                 ),
                 TextFormField(
                   controller: season,
@@ -570,10 +576,13 @@ class _TeamCard extends StatelessWidget {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Annuler')),
+          TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Annuler')),
           FilledButton(
             onPressed: () {
-              if (formKey.currentState!.validate()) Navigator.pop(dialogContext, true);
+              if (formKey.currentState!.validate())
+                Navigator.pop(dialogContext, true);
             },
             child: const Text('Enregistrer'),
           ),
@@ -598,7 +607,8 @@ class _TeamCard extends StatelessWidget {
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossible d’enregistrer la liaison FFF.')),
+        const SnackBar(
+            content: Text('Impossible d’enregistrer la liaison FFF.')),
       );
     } finally {
       club.dispose();
@@ -618,7 +628,10 @@ class _TeamCard extends StatelessWidget {
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Synchronisation FFF impossible. Vérifie d’abord la liaison officielle.')),
+        const SnackBar(
+          content: Text(
+              'Synchronisation FFF impossible. Vérifie d’abord la liaison officielle.'),
+        ),
       );
     }
   }
