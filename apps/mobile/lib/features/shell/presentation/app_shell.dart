@@ -82,6 +82,7 @@ class _AppShellState extends State<AppShell> {
           TeamPage(
             teamGateway: widget.teamGateway,
             playerGateway: widget.playerGateway,
+            calendarGateway: widget.calendarGateway,
             selectedTeamId: _selectedTeamId,
             onTeamSelected: _selectTeam,
             onTeamsChanged: _teamsChanged,
