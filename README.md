@@ -1,6 +1,6 @@
 # Sport Team Manager
 
-Mobile-first assistant for amateur futsal coaches. The technical MVP foundation, Epics 01 and 02, and Slices 00.1, 00.2 and 00.3 are functionally validated. Club and team creation, player lifecycle, cumulative roles, active-team switching, business permissions, secure Coach/Staff invitations, and the five-section mobile navigation work end to end.
+Mobile-first assistant for amateur futsal coaches. The technical MVP foundation, Epics 01 and 02, and Slices 00.1, 00.2 and 00.3 are functionally validated. Epic 03 is the sole active Epic; Slice 03.1 is implemented, technically validated and deployed, pending Product Owner functional validation.
 
 ## Repository layout
 
@@ -68,10 +68,13 @@ No state-management, router or model-generation library is selected yet. The cur
 - Slice 00.1 — main mobile navigation: functionally validated and complete. The authenticated shell exposes Home, Calendar, Team, Stats and Profile while preserving Home state between tab changes. Profile displays the connected account and supports sign-out.
 - Slice 00.2 — Team workspace: functionally validated and complete. Team creation, active-team switching, roster access and Coach/Staff invitations now live under Team. Invitation links open Team directly, while Home exposes an honest operational-dashboard empty state without fabricated match or training data.
 - Slice 00.3 — contextual Home dashboard: functionally validated and complete. Home displays the active club, team and roles, follows active-team switching during the session, exposes only existing Team actions and keeps honest empty states for future events.
+- Slice 03.1 — official FFF match import: implemented, technically validated and deployed; awaiting Product Owner functional validation. The backend keeps club and team FFF identifiers distinct, imports idempotently into PostgreSQL and exposes persisted matches to the active team's Calendar. Flutter never calls FFF directly and supports refreshing an initially empty calendar.
 - Production startup runs `prisma migrate deploy` before NestJS, so committed migrations are applied on Render startup.
-- API CI is green, including Prisma validation, tests, build and Docker. Flutter formatting, analysis, tests, Web build and Android APK build are green. GitHub Pages contains the functionally validated Slice 00.3 version.
+- API CI is green: lint, build, Docker and 42 tests. Flutter formatting, analysis, 24 tests, Web build and Android APK build are green. GitHub Pages contains the Slice 03.1 review version.
+- Epic 00 — app shell: paused after validated Slices 00.1–00.3.
 - Epic 01 — foundations (account, club, team and roles): complete.
 - Epic 02 — roster, player profiles and invitations: functionally validated and complete.
+- Epic 03 — official FFF calendar: sole active Epic; Slice 03.1 is in Review / Test.
 
 ## Validation
 
