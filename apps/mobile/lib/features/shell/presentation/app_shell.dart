@@ -105,11 +105,31 @@ class _AppShellState extends State<AppShell> {
         selectedIndex: _selectedIndex,
         onDestinationSelected: _selectTab,
         destinations: const [
-          NavigationDestination(key: Key('nav-home'), icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Accueil'),
-          NavigationDestination(key: Key('nav-calendar'), icon: Icon(Icons.calendar_month_outlined), selectedIcon: Icon(Icons.calendar_month), label: 'Calendrier'),
-          NavigationDestination(key: Key('nav-team'), icon: Icon(Icons.groups_2_outlined), selectedIcon: Icon(Icons.groups_2), label: 'Équipe'),
-          NavigationDestination(key: Key('nav-stats'), icon: Icon(Icons.bar_chart_outlined), selectedIcon: Icon(Icons.bar_chart), label: 'Stats'),
-          NavigationDestination(key: Key('nav-profile'), icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profil'),
+          NavigationDestination(
+              key: Key('nav-home'),
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: 'Accueil'),
+          NavigationDestination(
+              key: Key('nav-calendar'),
+              icon: Icon(Icons.calendar_month_outlined),
+              selectedIcon: Icon(Icons.calendar_month),
+              label: 'Calendrier'),
+          NavigationDestination(
+              key: Key('nav-team'),
+              icon: Icon(Icons.groups_2_outlined),
+              selectedIcon: Icon(Icons.groups_2),
+              label: 'Équipe'),
+          NavigationDestination(
+              key: Key('nav-stats'),
+              icon: Icon(Icons.bar_chart_outlined),
+              selectedIcon: Icon(Icons.bar_chart),
+              label: 'Stats'),
+          NavigationDestination(
+              key: Key('nav-profile'),
+              icon: Icon(Icons.person_outline),
+              selectedIcon: Icon(Icons.person),
+              label: 'Profil'),
         ],
       ),
     );
@@ -117,7 +137,11 @@ class _AppShellState extends State<AppShell> {
 }
 
 class _ComingSoonPage extends StatelessWidget {
-  const _ComingSoonPage({required this.title, required this.icon, required this.message, super.key});
+  const _ComingSoonPage(
+      {required this.title,
+      required this.icon,
+      required this.message,
+      super.key});
   final String title;
   final IconData icon;
   final String message;
@@ -135,11 +159,21 @@ class _ComingSoonPage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
-                  CircleAvatar(radius: 32, backgroundColor: colors.primaryContainer, foregroundColor: colors.onPrimaryContainer, child: Icon(icon, size: 32)),
+                  CircleAvatar(
+                      radius: 32,
+                      backgroundColor: colors.primaryContainer,
+                      foregroundColor: colors.onPrimaryContainer,
+                      child: Icon(icon, size: 32)),
                   const SizedBox(height: 20),
-                  Text(title, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+                  Text(title,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w800)),
                   const SizedBox(height: 10),
-                  Text(message, textAlign: TextAlign.center, style: TextStyle(color: colors.onSurfaceVariant)),
+                  Text(message,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: colors.onSurfaceVariant)),
                 ]),
               ),
             ),
@@ -164,14 +198,40 @@ class _ProfilePage extends StatelessWidget {
       appBar: AppBar(title: const Text('Profil')),
       body: SafeArea(
         child: ListView(padding: const EdgeInsets.all(24), children: [
-          Card(child: Padding(padding: const EdgeInsets.all(24), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Align(alignment: Alignment.centerLeft, child: CircleAvatar(radius: 32, backgroundColor: colors.primaryContainer, foregroundColor: colors.onPrimaryContainer, child: const Icon(Icons.person, size: 32))),
-            const SizedBox(height: 20),
-            Text(displayName?.isNotEmpty == true ? displayName! : 'Mon compte', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
-            if (email?.isNotEmpty == true) ...[const SizedBox(height: 6), Text(email!, style: TextStyle(color: colors.onSurfaceVariant))],
-            const SizedBox(height: 24),
-            OutlinedButton.icon(key: const Key('profile-sign-out'), onPressed: onSignOut, icon: const Icon(Icons.logout), label: const Text('Se déconnecter')),
-          ]))),
+          Card(
+              child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: CircleAvatar(
+                                radius: 32,
+                                backgroundColor: colors.primaryContainer,
+                                foregroundColor: colors.onPrimaryContainer,
+                                child: const Icon(Icons.person, size: 32))),
+                        const SizedBox(height: 20),
+                        Text(
+                            displayName?.isNotEmpty == true
+                                ? displayName!
+                                : 'Mon compte',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.w800)),
+                        if (email?.isNotEmpty == true) ...[
+                          const SizedBox(height: 6),
+                          Text(email!,
+                              style: TextStyle(color: colors.onSurfaceVariant))
+                        ],
+                        const SizedBox(height: 24),
+                        OutlinedButton.icon(
+                            key: const Key('profile-sign-out'),
+                            onPressed: onSignOut,
+                            icon: const Icon(Icons.logout),
+                            label: const Text('Se déconnecter')),
+                      ]))),
         ]),
       ),
     );

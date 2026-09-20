@@ -41,7 +41,7 @@ export class DofaFffGateway implements FffGateway {
 
   async getSchedule(competition: FffCompetitionRef): Promise<FffMatch[]> {
     const url = new URL(
-      `${this.baseUrl}/clubs/${encodeURIComponent(competition.externalTeamId)}/matchs`,
+      `${this.baseUrl}/clubs/${encodeURIComponent(competition.externalClubId)}/matchs`,
     );
     url.searchParams.set('page', '1');
 

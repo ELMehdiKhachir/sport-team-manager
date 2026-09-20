@@ -16,7 +16,10 @@ describe('DofaFffGateway', () => {
               home_score: null,
               away_score: null,
               competition: { name: 'D2 FUTSAL' },
-              home: { '@id': '/api/equipes/137104', short_name: 'NANTES DOULON B.' },
+              home: {
+                '@id': '/api/equipes/137104',
+                short_name: 'NANTES DOULON B.',
+              },
               away: { '@id': '/api/equipes/999', short_name: 'PESSAC FC' },
             },
             {
@@ -35,13 +38,16 @@ describe('DofaFffGateway', () => {
     const gateway = new DofaFffGateway();
     const matches = await gateway.getSchedule({
       externalId: 'd2',
+      externalClubId: 'club-137104',
       externalTeamId: '137104',
       name: 'D2 FUTSAL',
       seasonLabel: '2026-2027',
     });
 
     expect(fetchMock).toHaveBeenCalledOnce();
-    expect(String(fetchMock.mock.calls[0]?.[0])).toContain('/clubs/137104/matchs');
+    expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
+      '/clubs/club-137104/matchs',
+    );
     expect(matches).toHaveLength(1);
     expect(matches[0]).toMatchObject({
       externalId: '42',
@@ -78,6 +84,7 @@ describe('DofaFffGateway', () => {
 
     const matches = await new DofaFffGateway().getSchedule({
       externalId: 'd2',
+      externalClubId: 'club-137104',
       externalTeamId: '137104',
       name: 'D2 FUTSAL',
     });
@@ -86,11 +93,14 @@ describe('DofaFffGateway', () => {
   });
 
   it('fails without returning partial data when DOFA is unavailable', async () => {
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 503 }));
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(null, { status: 503 }),
+    );
 
     await expect(
       new DofaFffGateway().getSchedule({
         externalId: 'd2',
+        externalClubId: 'club-137104',
         externalTeamId: '137104',
         name: 'D2 FUTSAL',
       }),

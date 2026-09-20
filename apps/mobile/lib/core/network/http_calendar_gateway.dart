@@ -42,12 +42,16 @@ class HttpCalendarGateway implements CalendarGateway {
     }
     return payload.map((value) {
       if (value is! Map) {
-        throw const CalendarRequestException('Réponse inattendue de l’API.');
+        throw const CalendarRequestException(
+          'Réponse inattendue de l’API.',
+        );
       }
       final item = Map<String, dynamic>.from(value);
       final competitionValue = item['competition'];
       if (competitionValue is! Map) {
-        throw const CalendarRequestException('Compétition officielle manquante.');
+        throw const CalendarRequestException(
+          'Compétition officielle manquante.',
+        );
       }
       final competition = Map<String, dynamic>.from(competitionValue);
       return OfficialMatchSummary(
@@ -78,7 +82,7 @@ class HttpCalendarGateway implements CalendarGateway {
       },
       body: jsonEncode({
         'externalClubId': link.externalClubId,
-        if (link.externalTeamId != null) 'externalTeamId': link.externalTeamId,
+        'externalTeamId': link.externalTeamId,
         'externalCompetitionId': link.externalCompetitionId,
         'competitionName': link.competitionName,
         if (link.seasonLabel != null) 'seasonLabel': link.seasonLabel,
@@ -111,7 +115,6 @@ class HttpCalendarGateway implements CalendarGateway {
     }
     return (payload['importedMatches'] as num).toInt();
   }
-
 }
 
 class CalendarRequestException implements Exception {

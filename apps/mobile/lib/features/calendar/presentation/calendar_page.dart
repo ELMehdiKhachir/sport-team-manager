@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sport_team_manager/core/network/calendar_gateway.dart';
 
 class CalendarPage extends StatefulWidget {
-  const CalendarPage({
-    required this.gateway,
-    required this.teamId,
-    super.key,
-  });
+  const CalendarPage({required this.gateway, required this.teamId, super.key});
 
   final CalendarGateway gateway;
   final String? teamId;
@@ -32,7 +28,8 @@ class _CalendarPageState extends State<CalendarPage> {
 
   void _reload() {
     final teamId = widget.teamId;
-    _matches = teamId == null ? null : widget.gateway.getOfficialMatches(teamId);
+    _matches =
+        teamId == null ? null : widget.gateway.getOfficialMatches(teamId);
   }
 
   @override
@@ -71,10 +68,16 @@ class _CalendarPageState extends State<CalendarPage> {
         }
         final matches = snapshot.data ?? const [];
         if (matches.isEmpty) {
-          return const _CalendarMessage(
+          return _CalendarMessage(
             icon: Icons.calendar_month_outlined,
             title: 'Aucun match officiel',
             message: 'Aucun match FFF synchronisé pour cette équipe.',
+            action: TextButton.icon(
+              key: const Key('reload-empty-calendar'),
+              onPressed: () => setState(_reload),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Actualiser'),
+            ),
           );
         }
         return RefreshIndicator(
@@ -112,28 +115,52 @@ class _MatchCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Text('FFF', style: TextStyle(fontWeight: FontWeight.w800)),
+                  child: const Text(
+                    'FFF',
+                    style: TextStyle(fontWeight: FontWeight.w800),
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(match.competitionName, style: const TextStyle(fontWeight: FontWeight.w700)),
+                  child: Text(
+                    match.competitionName,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            Text('$date · $time', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              '$date · $time',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 12),
-            Text(match.homeTeamName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              match.homeTeamName,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 5),
               child: Text('vs'),
             ),
-            Text(match.awayTeamName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+            Text(
+              match.awayTeamName,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
           ],
         ),
       ),
@@ -165,7 +192,14 @@ class _CalendarMessage extends StatelessWidget {
           children: [
             Icon(icon, size: 48),
             const SizedBox(height: 16),
-            Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800), textAlign: TextAlign.center),
+            Text(
+              title,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 8),
             Text(message, textAlign: TextAlign.center),
             if (action != null) ...[const SizedBox(height: 12), action!],

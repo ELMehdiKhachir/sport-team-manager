@@ -1,11 +1,8 @@
-export type FffMatchStatus =
-  | 'SCHEDULED'
-  | 'POSTPONED'
-  | 'CANCELLED'
-  | 'PLAYED';
+export type FffMatchStatus = 'SCHEDULED' | 'POSTPONED' | 'CANCELLED' | 'PLAYED';
 
 export interface FffCompetitionRef {
   externalId: string;
+  externalClubId: string;
   externalTeamId: string;
   name: string;
   seasonLabel?: string;

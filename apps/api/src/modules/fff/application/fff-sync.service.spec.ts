@@ -7,6 +7,7 @@ import { OfficialMatchRepository } from './official-match.repository.js';
 describe('FffSyncService', () => {
   const competition = {
     externalId: 'competition-1',
+    externalClubId: 'club-fff-1',
     externalTeamId: 'team-fff-1',
     name: 'Championnat Futsal',
   };
@@ -33,6 +34,11 @@ describe('FffSyncService', () => {
       service.syncCompetition({ teamId: 'team-1', competition }),
     ).resolves.toEqual({ importedMatches: 1 });
     expect(repository.saveSync).toHaveBeenCalledTimes(1);
+    expect(repository.saveSync).toHaveBeenCalledWith(
+      expect.objectContaining({
+        matches: [expect.objectContaining({ venue: 'HOME' })],
+      }),
+    );
   });
 
   it('does not touch persisted data when the provider fails', async () => {

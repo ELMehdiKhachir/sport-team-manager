@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   hasTeamPermission,
   TeamPermission,
@@ -16,22 +21,29 @@ export class SyncOfficialMatchesService {
   async execute(firebaseUid: string, teamId: string) {
     const roles = await this.matches.getMembershipRoles(firebaseUid, teamId);
     if (!hasTeamPermission(roles, TeamPermission.FFF_SYNC)) {
-      throw new ForbiddenException('FFF synchronization permission is required.');
+      throw new ForbiddenException(
+        'FFF synchronization permission is required.',
+      );
     }
 
     const link = await this.matches.getOfficialTeamLink(teamId);
     if (!link) {
-      throw new NotFoundException('No official FFF link is configured for this team.');
+      throw new NotFoundException(
+        'No official FFF link is configured for this team.',
+      );
+    }
+    if (!link.externalTeamId) {
+      throw new BadRequestException(
+        'The official FFF team identifier must be configured before synchronization.',
+      );
     }
 
     return this.sync.syncCompetition({
       teamId,
       competition: {
         externalId: link.externalCompetitionId,
-        // The current DOFA club schedule endpoint is scoped by club id.
-        // Keep that provider-specific detail here until the gateway contract
-        // grows a dedicated externalClubId field.
-        externalTeamId: link.externalClubId,
+        externalClubId: link.externalClubId,
+        externalTeamId: link.externalTeamId,
         name: link.competitionName,
         seasonLabel: link.seasonLabel ?? undefined,
       },

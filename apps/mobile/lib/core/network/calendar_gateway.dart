@@ -25,14 +25,14 @@ class OfficialMatchSummary {
 class OfficialTeamLinkInput {
   const OfficialTeamLinkInput({
     required this.externalClubId,
+    required this.externalTeamId,
     required this.externalCompetitionId,
     required this.competitionName,
-    this.externalTeamId,
     this.seasonLabel,
   });
 
   final String externalClubId;
-  final String? externalTeamId;
+  final String externalTeamId;
   final String externalCompetitionId;
   final String competitionName;
   final String? seasonLabel;

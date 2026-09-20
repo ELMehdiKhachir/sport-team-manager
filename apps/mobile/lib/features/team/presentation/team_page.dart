@@ -125,16 +125,18 @@ class _TeamPageState extends State<TeamPage> {
           children: [
             Text(
               'Mon équipe',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                  ),
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineMedium
+                  ?.copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 12),
             Text(
               'Retrouve ici l’effectif, le staff et les actions liées à ton équipe active.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(color: colors.onSurfaceVariant),
             ),
             const SizedBox(height: 24),
             FutureBuilder<List<TeamSummary>>(
@@ -241,10 +243,7 @@ class _TeamPageState extends State<TeamPage> {
 }
 
 class _CreateClubCard extends StatefulWidget {
-  const _CreateClubCard({
-    required this.teamGateway,
-    required this.onCreated,
-  });
+  const _CreateClubCard({required this.teamGateway, required this.onCreated});
 
   final TeamGateway teamGateway;
   final ValueChanged<TeamSummary> onCreated;
@@ -307,9 +306,10 @@ class _CreateClubCardState extends State<_CreateClubCard> {
               const SizedBox(height: 12),
               Text(
                 'Crée ton espace équipe',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 6),
               Text(
@@ -458,9 +458,10 @@ class _TeamCard extends StatelessWidget {
           children: [
             Text(
               'Inviter dans ${team.name}',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
             const Text('Choisis le rôle attribué après acceptation du lien.'),
@@ -531,6 +532,7 @@ class _TeamCard extends StatelessWidget {
 
   Future<void> _configureFff(BuildContext context) async {
     final club = TextEditingController();
+    final officialTeam = TextEditingController();
     final competition = TextEditingController();
     final name = TextEditingController(text: 'D2 FUTSAL');
     final season = TextEditingController(text: '2026-2027');
@@ -548,22 +550,33 @@ class _TeamCard extends StatelessWidget {
               children: [
                 TextFormField(
                   controller: club,
-                  decoration:
-                      const InputDecoration(labelText: 'ID club FFF/API'),
+                  decoration: const InputDecoration(
+                    labelText: 'ID club FFF/API',
+                  ),
+                  validator: (v) =>
+                      v == null || v.trim().isEmpty ? 'Obligatoire' : null,
+                ),
+                TextFormField(
+                  controller: officialTeam,
+                  decoration: const InputDecoration(
+                    labelText: 'ID équipe FFF/API',
+                  ),
                   validator: (v) =>
                       v == null || v.trim().isEmpty ? 'Obligatoire' : null,
                 ),
                 TextFormField(
                   controller: competition,
-                  decoration:
-                      const InputDecoration(labelText: 'ID compétition FFF'),
+                  decoration: const InputDecoration(
+                    labelText: 'ID compétition FFF',
+                  ),
                   validator: (v) =>
                       v == null || v.trim().isEmpty ? 'Obligatoire' : null,
                 ),
                 TextFormField(
                   controller: name,
-                  decoration:
-                      const InputDecoration(labelText: 'Nom compétition'),
+                  decoration: const InputDecoration(
+                    labelText: 'Nom compétition',
+                  ),
                   validator: (v) =>
                       v == null || v.trim().isEmpty ? 'Obligatoire' : null,
                 ),
@@ -577,12 +590,14 @@ class _TeamCard extends StatelessWidget {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Annuler')),
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Annuler'),
+          ),
           FilledButton(
             onPressed: () {
-              if (formKey.currentState!.validate())
+              if (formKey.currentState!.validate()) {
                 Navigator.pop(dialogContext, true);
+              }
             },
             child: const Text('Enregistrer'),
           ),
@@ -595,23 +610,26 @@ class _TeamCard extends StatelessWidget {
         team.id,
         OfficialTeamLinkInput(
           externalClubId: club.text.trim(),
+          externalTeamId: officialTeam.text.trim(),
           externalCompetitionId: competition.text.trim(),
           competitionName: name.text.trim(),
           seasonLabel: season.text.trim().isEmpty ? null : season.text.trim(),
         ),
       );
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Liaison FFF enregistrée.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Liaison FFF enregistrée.')));
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Impossible d’enregistrer la liaison FFF.')),
+          content: Text('Impossible d’enregistrer la liaison FFF.'),
+        ),
       );
     } finally {
       club.dispose();
+      officialTeam.dispose();
       competition.dispose();
       name.dispose();
       season.dispose();
@@ -623,14 +641,17 @@ class _TeamCard extends StatelessWidget {
       final imported = await calendarGateway.syncOfficialMatches(team.id);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$imported match(s) officiel(s) synchronisé(s).')),
+        SnackBar(
+          content: Text('$imported match(s) officiel(s) synchronisé(s).'),
+        ),
       );
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-              'Synchronisation FFF impossible. Vérifie d’abord la liaison officielle.'),
+            'Synchronisation FFF impossible. Vérifie d’abord la liaison officielle.',
+          ),
         ),
       );
     }
@@ -660,15 +681,18 @@ class _TeamCard extends StatelessWidget {
                       Text(
                         team.name,
                         key: const Key('active-team-name'),
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       if (team.clubName != null) Text(team.clubName!),
                       const SizedBox(height: 8),
                       Chip(
-                        avatar:
-                            const Icon(Icons.admin_panel_settings, size: 18),
+                        avatar: const Icon(
+                          Icons.admin_panel_settings,
+                          size: 18,
+                        ),
                         label: Text(_rolesLabel(team.roles)),
                       ),
                     ],
@@ -680,10 +704,8 @@ class _TeamCard extends StatelessWidget {
             FilledButton.tonalIcon(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
-                  builder: (_) => RosterPage(
-                    team: team,
-                    playerGateway: playerGateway,
-                  ),
+                  builder: (_) =>
+                      RosterPage(team: team, playerGateway: playerGateway),
                 ),
               ),
               icon: const Icon(Icons.groups_2_outlined),
@@ -721,11 +743,13 @@ class _TeamCard extends StatelessWidget {
 }
 
 String _rolesLabel(List<String> roles) => roles
-    .map((role) => switch (role) {
-          'OWNER_MANAGER' => 'Manager',
-          'STAFF_ASSISTANT' => 'Staff',
-          'COACH' => 'Coach',
-          'PLAYER' => 'Joueur',
-          _ => role,
-        })
+    .map(
+      (role) => switch (role) {
+        'OWNER_MANAGER' => 'Manager',
+        'STAFF_ASSISTANT' => 'Staff',
+        'COACH' => 'Coach',
+        'PLAYER' => 'Joueur',
+        _ => role,
+      },
+    )
     .join(' · ');
